@@ -254,7 +254,10 @@ class ConnectionHandler:
             resolved = await self._ws_address_resolver(self._connection_host, self._connection_port)
             logger.debug(f'Resolved browser-level WebSocket address: {resolved}')
             return resolved
-        address = f'ws://{self._connection_host}:{self._connection_port}/devtools/page/{self._page_id}'
+        host = self._connection_host
+        if ':' in host:
+            host = f'[{host}]'
+        address = f'ws://{host}:{self._connection_port}/devtools/page/{self._page_id}'
         logger.debug(f'Resolved page-level WebSocket address: {address}')
         return address
 
