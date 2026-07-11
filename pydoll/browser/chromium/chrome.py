@@ -21,6 +21,7 @@ class Chrome(Browser):
     def __init__(
         self,
         options: Optional[ChromiumOptions] = None,
+        connection_host: Optional[str] = 'localhost',
         connection_port: Optional[int] = None,
     ):
         """
@@ -28,10 +29,15 @@ class Chrome(Browser):
 
         Args:
             options: Chrome configuration options (default if None).
+            connection_host: CDP WebSocket host.
             connection_port: CDP WebSocket port (random if None).
         """
         options_manager = ChromiumOptionsManager(options)
-        super().__init__(options_manager, connection_port)
+        super().__init__(
+            options_manager,
+            connection_host=connection_host,
+            connection_port=connection_port,
+        )
 
     @staticmethod
     def _get_default_binary_location():

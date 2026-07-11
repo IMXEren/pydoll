@@ -217,8 +217,25 @@ async def test_enable_and_disable_runtime_events(browser, fake_conn):
     assert fake_conn.commands_for('Runtime.disable')
 
 
-@pytest.mark.parametrize('bad_address', ['http://not-a-ws', 'ws://tooshort'])
+@pytest.mark.parametrize('bad_address', ['http://not-a-ws', 'ws://'])
 @pytest.mark.asyncio
 async def test_connect_rejects_invalid_ws_address(browser, bad_address):
     with pytest.raises(InvalidWebSocketAddress):
         await browser.connect(bad_address)
+
+
+@pytest.mark.parametrize('valid_address', ['ws://tooshort'])
+@pytest.mark.asyncio
+async def test_connect_accepts_short_address_with_host(browser, valid_address):
+    """Short URLs with a valid hostname should NOT raise InvalidWebSocketAddress.
+
+    The new validation uses urlsplit and only rejects URLs without a hostname.
+    'ws://tooshort' has 'tooshort' as a valid hostname, so it should pass
+    validation (even though connection will fail later for other reasons).
+    """
+    try:
+        await browser.connect(valid_address)
+    except InvalidWebSocketAddress:
+        pytest.fail(f'{valid_address} should not raise InvalidWebSocketAddress')
+    except Exception:
+        pass

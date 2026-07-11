@@ -5,6 +5,7 @@ import json
 import logging
 from contextlib import suppress
 from typing import TYPE_CHECKING, cast
+from urllib.parse import urlsplit
 
 import websockets
 from websockets.asyncio.client import ClientConnection
@@ -38,9 +39,12 @@ class ConnectionHandler:
 
     def __init__(
         self,
+        connection_host: Optional[str] = 'localhost',
         connection_port: Optional[int] = None,
         page_id: Optional[str] = None,
-        ws_address_resolver: Callable[[int], Coroutine[Any, Any, str]] = get_browser_ws_address,
+        ws_address_resolver: Callable[
+            [str, int], Coroutine[Any, Any, str]
+        ] = get_browser_ws_address,
         ws_connector: type[Connect] = websockets.connect,
         ws_address: Optional[str] = None,
     ):
@@ -48,12 +52,15 @@ class ConnectionHandler:
         Initialize connection handler.
 
         Args:
+            connection_host: Browser's debugging server host.
             connection_port: Browser's debugging server port.
             page_id: Target page ID. If None, connects to browser-level endpoint.
             ws_address_resolver: Function to resolve WebSocket URL from port.
             ws_connector: WebSocket connection factory (mainly for testing).
-            ws_address: WebSocket address. It has priority over connection_port and page_id.
+            ws_address: WebSocket address.
+                It has priority over (connection_host, connection_port) and page_id.
         """
+        self._connection_host = connection_host
         self._connection_port = connection_port
         self._page_id = page_id
         self._ws_address_resolver = ws_address_resolver
@@ -66,7 +73,8 @@ class ConnectionHandler:
         self._connection_lock = asyncio.Lock()
         logger.info('ConnectionHandler initialized.')
         logger.debug(
-            f'Init params: port={self._connection_port}, page_id={self._page_id}, '
+            f'Init params: host={self._connection_host} port={self._connection_port},'
+            ' page_id={self._page_id}, '
             f'ws_address_set={bool(self._ws_address)}'
         )
 
@@ -243,10 +251,10 @@ class ConnectionHandler:
             logger.debug('Using provided WebSocket address')
             return self._ws_address
         if not self._page_id:
-            resolved = await self._ws_address_resolver(self._connection_port)
+            resolved = await self._ws_address_resolver(self._connection_host, self._connection_port)
             logger.debug(f'Resolved browser-level WebSocket address: {resolved}')
             return resolved
-        address = f'ws://localhost:{self._connection_port}/devtools/page/{self._page_id}'
+        address = f'ws://{self._connection_host}:{self._connection_port}/devtools/page/{self._page_id}'
         logger.debug(f'Resolved page-level WebSocket address: {address}')
         return address
 
@@ -322,11 +330,11 @@ class ConnectionHandler:
 
     def __repr__(self):
         """String representation for debugging."""
-        return f'ConnectionHandler(port={self._connection_port})'
+        return f'ConnectionHandler(host={self._connection_host}, port={self._connection_port})'
 
     def __str__(self):
         """User-friendly string representation."""
-        return f'ConnectionHandler(port={self._connection_port})'
+        return f'ConnectionHandler(host={self._connection_host}, port={self._connection_port})'
 
     async def __aenter__(self):
         """Async context manager entry."""

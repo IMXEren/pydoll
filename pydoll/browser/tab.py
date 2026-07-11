@@ -119,7 +119,6 @@ if TYPE_CHECKING:
         NavigateResponse,
         PrintToPDFResponse,
     )
-    from pydoll.protocol.runtime.methods import CallFunctionOnResponse, EvaluateResponse
     from pydoll.protocol.storage.methods import GetCookiesResponse as StorageGetCookiesResponse
     from pydoll.protocol.target.methods import AttachToTargetResponse, GetTargetsResponse
 
@@ -146,6 +145,7 @@ class Tab(FindElementsMixin):
     def __init__(
         self,
         browser: Browser,
+        connection_host: Optional[str] = 'localhost',
         connection_port: Optional[int] = None,
         target_id: Optional[str] = None,
         browser_context_id: Optional[str] = None,
@@ -157,6 +157,7 @@ class Tab(FindElementsMixin):
 
         Args:
             browser: Browser instance that created this tab.
+            connection_host: CDP WebSocket host.
             connection_port: CDP WebSocket port.
             target_id: CDP target identifier for this tab.
             browser_context_id: Optional browser context ID.
@@ -168,6 +169,7 @@ class Tab(FindElementsMixin):
             raise InvalidTabInitialization()
 
         self._browser = browser
+        self._connection_host = connection_host
         self._connection_port = connection_port
         self._target_id = target_id
         self._ws_address = ws_address
@@ -189,7 +191,8 @@ class Tab(FindElementsMixin):
             (
                 f'Tab initialized: target_id={self._target_id}, '
                 f'ws_address_set={bool(self._ws_address)}, '
-                f'context_id={self._browser_context_id}, port={self._connection_port}'
+                f'context_id={self._browser_context_id}, '
+                f'host={self._connection_host}, port={self._connection_port}'
             )
         )
 
@@ -700,7 +703,11 @@ class Tab(FindElementsMixin):
 
     async def _collect_oopif_shadow_roots(self) -> list[ShadowRoot]:
         """Discover shadow roots inside cross-origin iframes (OOPIFs)."""
-        browser_handler = ConnectionHandler(connection_port=self._connection_port)
+        browser_handler = ConnectionHandler(
+            connection_host=self._connection_host,
+            connection_port=self._connection_port,
+            ws_address=self._ws_address,
+        )
         targets_response: GetTargetsResponse = await browser_handler.execute_command(
             TargetCommands.get_targets()
         )
@@ -1840,9 +1847,14 @@ class Tab(FindElementsMixin):
             return ConnectionHandler(ws_address=self._ws_address)
         logger.debug(
             'Using port/target for connection handler: '
-            f'port={self._connection_port}, target_id={self._target_id}'
+            f'host={self._connection_host}, port={self._connection_port}, '
+            f'target_id={self._target_id}'
         )
-        return ConnectionHandler(self._connection_port, self._target_id)
+        return ConnectionHandler(
+            connection_host=self._connection_host,
+            connection_port=self._connection_port,
+            page_id=self._target_id,
+        )
 
     @staticmethod
     def _get_evaluate_command(
