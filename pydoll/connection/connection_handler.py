@@ -12,8 +12,10 @@ from websockets.asyncio.client import ClientConnection
 from websockets.protocol import State
 
 from pydoll.connection.managers import CommandsManager, EventsManager
+from pydoll.connection.types import WSAddressResolverParams
 from pydoll.exceptions import (
     CommandExecutionTimeout,
+    InvalidWebSocketAddress,
     WebSocketConnectionClosed,
 )
 from pydoll.protocol.base import CDPEvent, Response
@@ -39,14 +41,15 @@ class ConnectionHandler:
 
     def __init__(
         self,
-        connection_host: Optional[str] = 'localhost',
+        connection_host: Optional[str] = None,
         connection_port: Optional[int] = None,
         page_id: Optional[str] = None,
         ws_address_resolver: Callable[
-            [str, int], Coroutine[Any, Any, str]
+            [WSAddressResolverParams], Coroutine[Any, Any, str]
         ] = get_browser_ws_address,
         ws_connector: type[Connect] = websockets.connect,
         ws_address: Optional[str] = None,
+        use_secure: bool = False,
     ):
         """
         Initialize connection handler.
@@ -59,13 +62,15 @@ class ConnectionHandler:
             ws_connector: WebSocket connection factory (mainly for testing).
             ws_address: WebSocket address.
                 It has priority over (connection_host, connection_port) and page_id.
+            use_secure: Use secure websocket connection for (connection_host, connection_port).
         """
-        self._connection_host = connection_host
+        self._connection_host = connection_host if connection_host else 'localhost'
         self._connection_port = connection_port
         self._page_id = page_id
         self._ws_address_resolver = ws_address_resolver
         self._ws_connector = ws_connector
         self._ws_address = ws_address
+        self._use_secure = use_secure
         self._ws_connection: Optional[ClientConnection] = None
         self._command_manager = CommandsManager()
         self._events_handler = EventsManager()
@@ -73,10 +78,13 @@ class ConnectionHandler:
         self._connection_lock = asyncio.Lock()
         logger.info('ConnectionHandler initialized.')
         logger.debug(
-            f'Init params: host={self._connection_host} port={self._connection_port},'
-            ' page_id={self._page_id}, '
-            f'ws_address_set={bool(self._ws_address)}'
+            f'Init params: host={self._connection_host}, port={self._connection_port},'
+            f' page_id={self._page_id}, ws_address_set={bool(self._ws_address)}'
+            f' use_secure={self._use_secure}'
         )
+
+        if self._ws_address:
+            self._use_ws_address(self._ws_address)
 
     @property
     def network_logs(self):
@@ -223,6 +231,7 @@ class ConnectionHandler:
         """Create fresh WebSocket connection and start event listening."""
         await self._teardown_connection()
         ws_address = await self._resolve_ws_address()
+        self._use_ws_address(ws_address)
         logger.info(f'Connecting to {ws_address}')
         self._ws_connection = await self._ws_connector(
             ws_address,
@@ -245,19 +254,52 @@ class ConnectionHandler:
                 await self._ws_connection.close()
         self._ws_connection = None
 
+    def _use_ws_address(self, ws_address: str):
+        """Using the ws address, update host and port to reflect it."""
+        parsed_url = urlsplit(ws_address)
+        if not parsed_url.hostname:
+            raise InvalidWebSocketAddress(f'No host in ws address: {ws_address}')
+        self._connection_host = parsed_url.hostname
+        if parsed_url.port is None:
+            if parsed_url.scheme == 'wss':
+                self._connection_port = 443
+            elif parsed_url.scheme == 'ws':
+                self._connection_port = 80
+            else:
+                raise InvalidWebSocketAddress(f'Invalid scheme in ws address: {ws_address}')
+        else:
+            self._connection_port = parsed_url.port
+
+    def _get_ws_scheme(self):
+        """Get the WebSocket scheme to use from ws address or by `use_secure`."""
+        if self._ws_address:
+            # Assuming the ws address has valid scheme
+            parsed_url = urlsplit(self._ws_address)
+            return parsed_url.scheme
+        if self._use_secure:
+            return 'wss'
+        return 'ws'
+
     async def _resolve_ws_address(self):
         """Determine correct WebSocket address based on page ID."""
         if self._ws_address:
             logger.debug('Using provided WebSocket address')
             return self._ws_address
+        scheme = self._get_ws_scheme()
         if not self._page_id:
-            resolved = await self._ws_address_resolver(self._connection_host, self._connection_port)
+            resolved = await self._ws_address_resolver(
+                WSAddressResolverParams(
+                    host=self._connection_host,
+                    port=self._connection_port,
+                    use_secure=self._use_secure,
+                )
+            )
             logger.debug(f'Resolved browser-level WebSocket address: {resolved}')
             return resolved
         host = self._connection_host
         if ':' in host:
             host = f'[{host}]'
-        address = f'ws://{host}:{self._connection_port}/devtools/page/{self._page_id}'
+        address = f'{scheme}://{host}:{self._connection_port}/devtools/page/{self._page_id}'
         logger.debug(f'Resolved page-level WebSocket address: {address}')
         return address
 

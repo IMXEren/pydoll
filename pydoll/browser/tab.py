@@ -151,6 +151,7 @@ class Tab(FindElementsMixin):
         browser_context_id: Optional[str] = None,
         ws_address: Optional[str] = None,
         connection_handler: Optional[ConnectionHandler] = None,
+        use_secure: bool = False,
     ):
         """
         Initialize tab controller for existing browser tab.
@@ -164,6 +165,7 @@ class Tab(FindElementsMixin):
             ws_address: Optional WebSocket address for this tab.
             connection_handler: Pre-built connection handler; created from
                 connection details when omitted (mainly for testing).
+            use_secure: Use secure WebSocket (wss://).
         """
         if not any([connection_port, target_id, ws_address]):
             raise InvalidTabInitialization()
@@ -174,6 +176,7 @@ class Tab(FindElementsMixin):
         self._target_id = target_id
         self._ws_address = ws_address
         self._browser_context_id = browser_context_id
+        self._use_secure = use_secure
         self._connection_handler = connection_handler or self._get_connection_handler()
         self._page_events_enabled = False
         self._network_events_enabled = False
@@ -707,6 +710,7 @@ class Tab(FindElementsMixin):
             connection_host=self._connection_host,
             connection_port=self._connection_port,
             ws_address=self._ws_address,
+            use_secure=self._use_secure,
         )
         targets_response: GetTargetsResponse = await browser_handler.execute_command(
             TargetCommands.get_targets()
@@ -1854,6 +1858,7 @@ class Tab(FindElementsMixin):
             connection_host=self._connection_host,
             connection_port=self._connection_port,
             page_id=self._target_id,
+            use_secure=self._use_secure,
         )
 
     @staticmethod

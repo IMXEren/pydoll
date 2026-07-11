@@ -23,6 +23,7 @@ class Chrome(Browser):
         options: Optional[ChromiumOptions] = None,
         connection_host: Optional[str] = 'localhost',
         connection_port: Optional[int] = None,
+        use_secure: bool = False,
     ):
         """
         Initialize Chrome browser instance.
@@ -31,12 +32,14 @@ class Chrome(Browser):
             options: Chrome configuration options (default if None).
             connection_host: CDP WebSocket host.
             connection_port: CDP WebSocket port (random if None).
+            use_secure: Use secure WebSocket (wss://).
         """
         options_manager = ChromiumOptionsManager(options)
         super().__init__(
             options_manager,
             connection_host=connection_host,
             connection_port=connection_port,
+            use_secure=use_secure,
         )
 
     @staticmethod

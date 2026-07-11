@@ -93,6 +93,7 @@ class Browser(ABC):  # noqa: PLR0904
         browser_process_manager: Optional[BrowserProcessManager] = None,
         temp_directory_manager: Optional[TempDirectoryManager] = None,
         connection_handler: Optional[ConnectionHandler] = None,
+        use_secure: bool = False,
     ):
         """
         Initialize browser instance with configuration.
@@ -107,6 +108,7 @@ class Browser(ABC):  # noqa: PLR0904
             temp_directory_manager: Temp directory manager; default when omitted.
             connection_handler: Browser-level connection handler; built from the
                 connection port when omitted (mainly for testing).
+            use_secure: Use secure WebSocket (wss://).
 
         Note:
             Call start() to actually launch the browser.
@@ -119,9 +121,11 @@ class Browser(ABC):  # noqa: PLR0904
         self._browser_process_manager = browser_process_manager or BrowserProcessManager()
         self._temp_directory_manager = temp_directory_manager or TempDirectoryManager()
         self._ws_address: Optional[str] = None
+        self._use_secure = use_secure
         self._connection_handler = connection_handler or ConnectionHandler(
             connection_host=self._connection_host,
             connection_port=self._connection_port,
+            use_secure=self._use_secure,
         )
         self._backup_preferences_dir = ''
         self._tabs_opened: dict[str, Tab] = {}
@@ -1090,6 +1094,7 @@ class Browser(ABC):  # noqa: PLR0904
         else:
             kwargs['connection_host'] = self._connection_host
             kwargs['connection_port'] = self._connection_port
+            kwargs['use_secure'] = self._use_secure
         logger.debug(f'Tab kwargs resolved for {target_id}: using_ws={bool(self._ws_address)}')
         return kwargs
 
