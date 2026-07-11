@@ -1,3 +1,16 @@
+## 2.24.0 (2026-07-11)
+
+### Feat
+
+- **connection**: add use_secure and WSAddressResolverParams TypedDict for resolver callbacks
+- **connection**: support configurable connection_host for ConnectionHandler
+
+### Fix
+
+- **cloudflare**: update checkbox selector
+- **connection**: add square brackets to host when ipv6 address
+- **mouse**: keep debug overlay visible across page navigations
+
 ## 2.23.0 (2026-05-22)
 
 ### Feat
