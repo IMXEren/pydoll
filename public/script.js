@@ -1,6 +1,6 @@
 // Fetch stars and forks from GitHub API and wire small UX actions
 (async () => {
-  const repo = 'autoscrape-labs/pydoll'
+  const repo = 'IMXEren/pydoll'
   const apiUrl = `https://api.github.com/repos/${repo}`
   let repoStarsCount = 0
 
@@ -335,38 +335,8 @@
   })
 })()
 
-
-// You can add more sponsors by pushing new objects to this array
-const SPONSORS = [
-  {
-    name: 'The Web Scraping Club',
-    url: 'https://substack.thewebscraping.club/p/pydoll-webdriver-scraping?utm_source=github&utm_medium=repo&utm_campaign=pydoll',
-    logo: '/images/logo-the-webscraping-club.png',
-    width: 200,
-    height: 45
-  },
-  {
-    name: 'Thordata',
-    url: 'https://www.thordata.com/?ls=github&lk=pydoll',
-    logo: '/images/Thordata-logo.png',
-    width: 200,
-    height: 45
-  },
-  {
-    name: 'LambdaTest',
-    url: 'https://www.testmuai.com/?utm_medium=sponsor&utm_source=pydoll',
-    logo: '/images/logo-lamda-test.svg',
-    width: 200,
-    height: 45
-  },
-  {
-    name: 'CapSolver',
-    url: 'https://dashboard.capsolver.com/passport/register?inviteCode=WPhTbOsbXEpc',
-    logo: '/images/capsolver-logo.png',
-    width: 200,
-    height: 45
-  }
-]
+// Sponsors — populated dynamically; add objects to the array to display
+const SPONSORS = []
 
 function renderSponsors(gridId = 'sponsorsGrid') {
   const grid = document.getElementById(gridId)

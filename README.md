@@ -4,19 +4,19 @@
 <p align="center">Async-native, fully typed, built for evasion and performance.</p>
 
 <p align="center">
-    <a href="https://github.com/autoscrape-labs/pydoll/stargazers"><img src="https://img.shields.io/github/stars/autoscrape-labs/pydoll?style=social"></a>
-    <a href="https://codecov.io/gh/autoscrape-labs/pydoll" >
-        <img src="https://codecov.io/gh/autoscrape-labs/pydoll/graph/badge.svg?token=40I938OGM9"/>
+    <a href="https://github.com/IMXEren/pydoll/stargazers"><img src="https://img.shields.io/github/stars/IMXEren/pydoll?style=social"></a>
+    <a href="https://codecov.io/gh/IMXEren/pydoll" >
+        <img src="https://codecov.io/gh/IMXEren/pydoll/graph/badge.svg?token=L1WQBCFR3F"/>
     </a>
-    <img src="https://github.com/autoscrape-labs/pydoll/actions/workflows/tests.yml/badge.svg" alt="Tests">
-    <img src="https://github.com/autoscrape-labs/pydoll/actions/workflows/ruff-ci.yml/badge.svg" alt="Ruff CI">
-    <img src="https://github.com/autoscrape-labs/pydoll/actions/workflows/mypy.yml/badge.svg" alt="MyPy CI">
+    <img src="https://github.com/IMXEren/pydoll/actions/workflows/tests.yml/badge.svg" alt="Tests">
+    <img src="https://github.com/IMXEren/pydoll/actions/workflows/ruff-ci.yml/badge.svg" alt="Ruff CI">
+    <img src="https://github.com/IMXEren/pydoll/actions/workflows/mypy.yml/badge.svg" alt="MyPy CI">
     <img src="https://img.shields.io/badge/python-%3E%3D3.10-blue" alt="Python >= 3.10">
-    <a href="https://deepwiki.com/autoscrape-labs/pydoll"><img src="https://deepwiki.com/badge.svg" alt="Ask DeepWiki"></a>
+    <a href="https://deepwiki.com/IMXEren/pydoll"><img src="https://deepwiki.com/badge.svg" alt="Ask DeepWiki"></a>
 </p>
 
 <p align="center">
-    <a href="https://pydoll.tech/">Documentation</a> &middot;
+    <a href="https://imxeren.github.io/pydoll/">Documentation</a> &middot;
     <a href="#getting-started">Getting Started</a> &middot;
     <a href="#features">Features</a> &middot;
     <a href="#support">Support</a>
@@ -26,33 +26,13 @@ Pydoll automates Chromium-based browsers (Chrome, Edge) by connecting directly t
 
 It combines a high-level API for stealthy automation with low-level CDP access for fine-grained control over network, fingerprinting, and browser behavior. And with its new **Pydantic-powered extraction engine**, it maps the DOM directly to structured Python objects, delivering an unmatched Developer Experience (DX).
 
-### Top Sponsors
-
-<a href="https://substack.thewebscraping.club/p/pydoll-webdriver-scraping?utm_source=github&utm_medium=repo&utm_campaign=pydoll">
-    <img src="public/images/banner-the-webscraping-club.png" alt="The Web Scraping Club" />
-</a>
-
-<sub>Read a full review of Pydoll on <b><a href="https://substack.thewebscraping.club/p/pydoll-webdriver-scraping?utm_source=github&utm_medium=repo&utm_campaign=pydoll">The Web Scraping Club</a></b>, the #1 newsletter dedicated to web scraping.</sub>
-
-### Sponsors
-
-<table>
-  <tr>
-    <td><a href="https://www.thordata.com/?ls=github&lk=pydoll"><img src="public/images/Thordata-logo.png" height="30" alt="Thordata" /></a></td>
-    <td><a href="https://dashboard.capsolver.com/passport/register?inviteCode=WPhTbOsbXEpc"><img src="public/images/capsolver-logo.png" height="40" alt="CapSolver" /></a></td>
-    <td><a href="https://www.testmuai.com/?utm_medium=sponsor&utm_source=pydoll"><img src="public/images/logo-lamda-test.svg" height="30" width="130" alt="LambdaTest" /></a></td>
-  </tr>
-</table>
-
-<sub>[Learn more about our sponsors](SPONSORS.md) &middot; [Become a sponsor](https://github.com/sponsors/thalissonvs)</sub>
-
 ### Why Pydoll
 
 - **Structured extraction**: Define a [Pydantic](https://docs.pydantic.dev/) model, call `tab.extract()`, get typed and validated data back. No manual element-by-element querying.
 - **Async and typed**: Built on `asyncio` from the ground up, 100% type-checked with `mypy`. Full IDE autocompletion and static error checking.
-- **Stealth built in**: Human-like mouse movement, realistic typing, and granular [browser preference](https://pydoll.tech/docs/features/configuration/browser-preferences/) control for fingerprint management.
-- **Network control**: [Intercept](https://pydoll.tech/docs/features/network/interception/) requests to block ads/trackers, [monitor](https://pydoll.tech/docs/features/network/monitoring/) traffic for API discovery, and make [authenticated HTTP requests](https://pydoll.tech/docs/features/network/http-requests/) that inherit the browser session.
-- **Shadow DOM and iframes**: Full support for [shadow roots](https://pydoll.tech/docs/deep-dive/architecture/shadow-dom/) (including closed) and cross-origin iframes. Discover, query, and interact with elements inside them using the same API.
+- **Stealth built in**: Human-like mouse movement, realistic typing, and granular [browser preference](https://imxeren.github.io/pydoll/docs/features/configuration/browser-preferences/) control for fingerprint management.
+- **Network control**: [Intercept](https://imxeren.github.io/pydoll/docs/features/network/interception/) requests to block ads/trackers, [monitor](https://imxeren.github.io/pydoll/docs/features/network/monitoring/) traffic for API discovery, and make [authenticated HTTP requests](https://imxeren.github.io/pydoll/docs/features/network/http-requests/) that inherit the browser session.
+- **Shadow DOM and iframes**: Full support for [shadow roots](https://imxeren.github.io/pydoll/docs/deep-dive/architecture/shadow-dom/) (including closed) and cross-origin iframes. Discover, query, and interact with elements inside them using the same API.
 
 ## Installation
 
@@ -87,7 +67,7 @@ async def google_search(query: str):
 
         first_result = await tab.find(
             tag_name='h3',
-            text='autoscrape-labs/pydoll',
+            text='IMXEren/pydoll',
             timeout=10,
         )
         await first_result.click(humanize=True)
@@ -214,7 +194,7 @@ await button.click(humanize=True)
 await tab.mouse.click(500, 300)
 ```
 
-[Mouse Control Docs](https://pydoll.tech/docs/features/automation/mouse-control/)
+[Mouse Control Docs](https://imxeren.github.io/pydoll/docs/features/automation/mouse-control/)
 </details>
 
 <details>
@@ -243,7 +223,7 @@ Highlights:
 - `deep=True` traverses cross-origin iframes (OOPIFs)
 - Standard `find()`, `query()`, `click()` API inside shadow roots
 
-[Shadow DOM Docs](https://pydoll.tech/docs/deep-dive/architecture/shadow-dom/)
+[Shadow DOM Docs](https://imxeren.github.io/pydoll/docs/deep-dive/architecture/shadow-dom/)
 </details>
 
 <details>
@@ -267,7 +247,7 @@ async with Chrome() as browser:
     responses = await tab.request.replay('flow.har')
 ```
 
-[HAR Recording Docs](https://pydoll.tech/docs/features/network/network-recording/)
+[HAR Recording Docs](https://imxeren.github.io/pydoll/docs/features/network/network-recording/)
 </details>
 
 <details>
@@ -281,7 +261,7 @@ await tab.save_bundle('page.zip')
 await tab.save_bundle('page-inline.zip', inline_assets=True)
 ```
 
-[Screenshots, PDFs & Bundles Docs](https://pydoll.tech/docs/features/automation/screenshots-and-pdfs/)
+[Screenshots, PDFs & Bundles Docs](https://imxeren.github.io/pydoll/docs/features/automation/screenshots-and-pdfs/)
 </details>
 
 <details>
@@ -301,7 +281,7 @@ await (await tab.find(id='login-btn')).click()
 response = await tab.request.get('https://my-site.com/api/user/profile')
 user_data = response.json()
 ```
-[Hybrid Automation Docs](https://pydoll.tech/docs/features/network/http-requests/)
+[Hybrid Automation Docs](https://imxeren.github.io/pydoll/docs/features/network/http-requests/)
 </details>
 
 <details>
@@ -338,14 +318,14 @@ async def block_images():
 
 asyncio.run(block_images())
 ```
-[Network Monitoring](https://pydoll.tech/docs/features/network/monitoring/) | [Request Interception](https://pydoll.tech/docs/features/network/interception/)
+[Network Monitoring](https://imxeren.github.io/pydoll/docs/features/network/monitoring/) | [Request Interception](https://imxeren.github.io/pydoll/docs/features/network/interception/)
 </details>
 
 <details>
 <summary><b>Browser Fingerprint Control</b></summary>
 <br>
 
-Granular control over [browser preferences](https://pydoll.tech/docs/features/configuration/browser-preferences/): hundreds of internal Chrome settings for building consistent fingerprints.
+Granular control over [browser preferences](https://imxeren.github.io/pydoll/docs/features/configuration/browser-preferences/): hundreds of internal Chrome settings for building consistent fingerprints.
 
 ```python
 options = ChromiumOptions()
@@ -366,14 +346,14 @@ options.browser_preferences = {
     }
 }
 ```
-[Browser Preferences Guide](https://pydoll.tech/docs/features/configuration/browser-preferences/)
+[Browser Preferences Guide](https://imxeren.github.io/pydoll/docs/features/configuration/browser-preferences/)
 </details>
 
 <details>
 <summary><b>Concurrency, Contexts and Remote Connections</b></summary>
 <br>
 
-Manage [multiple tabs](https://pydoll.tech/docs/features/browser-management/tabs/) and [browser contexts](https://pydoll.tech/docs/features/browser-management/contexts/) (isolated sessions) concurrently. Connect to browsers running in Docker or remote servers.
+Manage [multiple tabs](https://imxeren.github.io/pydoll/docs/features/browser-management/tabs/) and [browser contexts](https://imxeren.github.io/pydoll/docs/features/browser-management/contexts/) (isolated sessions) concurrently. Connect to browsers running in Docker or remote servers.
 
 ```python
 async def scrape_page(url, tab):
@@ -391,7 +371,7 @@ async def concurrent_scraping():
         )
         print(results)
 ```
-[Multi-Tab Management](https://pydoll.tech/docs/features/browser-management/tabs/) | [Remote Connections](https://pydoll.tech/docs/features/advanced/remote-connections/)
+[Multi-Tab Management](https://imxeren.github.io/pydoll/docs/features/browser-management/tabs/) | [Remote Connections](https://imxeren.github.io/pydoll/docs/features/advanced/remote-connections/)
 </details>
 
 <details>
@@ -414,7 +394,7 @@ async def scrape_product(self, url: str):
     # scraping logic
     ...
 ```
-[Retry Decorator Docs](https://pydoll.tech/docs/features/advanced/decorators/)
+[Retry Decorator Docs](https://imxeren.github.io/pydoll/docs/features/advanced/decorators/)
 </details>
 
 ---
@@ -425,7 +405,7 @@ Contributions are welcome. See [CONTRIBUTING.md](CONTRIBUTING.md) for guidelines
 
 ## Support
 
-If you find Pydoll useful, consider [sponsoring the project on GitHub](https://github.com/sponsors/thalissonvs).
+If you find Pydoll useful, consider [sponsoring the project on GitHub](https://github.com/sponsors/IMXEren).
 
 ## License
 

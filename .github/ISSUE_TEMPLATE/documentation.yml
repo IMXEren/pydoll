@@ -16,7 +16,7 @@ body:
       label: Checklist before reporting
       description: Please make sure you've completed the following steps before submitting a documentation issue.
       options:
-        - label: I have searched for [similar documentation issues](https://github.com/thalissonvs/pydoll/issues) and didn't find a duplicate.
+        - label: I have searched for [similar documentation issues](https://github.com/IMXEren/pydoll/issues) and didn't find a duplicate.
           required: true
         - label: I have checked the latest documentation to verify this issue still exists.
           required: true
