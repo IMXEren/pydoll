@@ -97,6 +97,8 @@ class TempDirectoryManager:
             '/local storage/leveldb/',
             'leveldb',
             'indexeddb',
+            '\\session storage\\',
+            '/session storage/',
         ]
         exc_type, exc_value, _ = exc_info
 
