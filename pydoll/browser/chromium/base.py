@@ -146,10 +146,11 @@ class Browser(ABC):  # noqa: PLR0904
         if self._backup_preferences_dir:
             logger.debug(f'Restoring backup preferences directory: {self._backup_preferences_dir}')
             user_data_dir = self._get_user_data_dir()
-            shutil.copy2(
-                self._backup_preferences_dir,
-                os.path.join(user_data_dir, 'Default', 'Preferences'),
-            )
+            if user_data_dir:
+                shutil.copy2(
+                    self._backup_preferences_dir,
+                    os.path.join(user_data_dir, 'Default', 'Preferences'),
+                )
         if await self._is_browser_running(timeout=2):
             await self.stop()
 
@@ -175,6 +176,8 @@ class Browser(ABC):  # noqa: PLR0904
         await self._setup_ws_address(ws_address)
         tabs = await self.get_opened_tabs()
         logger.info(f'Connected. Tabs available: {len(tabs)}')
+        if not tabs:
+            raise NoValidTabFound('No tabs available after connecting to browser')
         return tabs[0]
 
     async def start(self, headless: bool = False) -> Tab:
@@ -369,6 +372,11 @@ class Browser(ABC):  # noqa: PLR0904
             if target['type'] == 'page' and 'extension' not in target['url']
         ]
         all_target_ids = [target['targetId'] for target in valid_tab_targets]
+        # Filter out stale cached tabs that no longer exist in the browser
+        self._tabs_opened = {
+            tid: tab for tid, tab in self._tabs_opened.items()
+            if tid in all_target_ids
+        }
         existing_target_ids = list(self._tabs_opened.keys())
         remaining_target_ids = [
             target_id for target_id in all_target_ids if target_id not in existing_target_ids

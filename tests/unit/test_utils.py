@@ -6,6 +6,8 @@ import os
 import sys
 from unittest.mock import patch
 
+_EXE = '.exe' if os.name == 'nt' else ''
+
 from pydoll import exceptions
 from pydoll.connection.types import WSAddressResolverParams
 from pydoll.utils import (
@@ -158,12 +160,12 @@ class TestUtils:
         """
         with tempfile.TemporaryDirectory() as temp_dir:
             # Create a temporary executable file
-            valid_path = os.path.join(temp_dir, 'browser')
+            valid_path = os.path.join(temp_dir, f'browser{_EXE}')
             with open(valid_path, 'w') as f:
                 f.write('#!/bin/bash\necho "browser"')
             os.chmod(valid_path, 0o755)  # Make it executable
             
-            invalid_path = '/nonexistent/browser'
+            invalid_path = f'/nonexistent/browser{_EXE}'
             paths = [invalid_path, valid_path]
             
             result = validate_browser_paths(paths)
@@ -176,8 +178,8 @@ class TestUtils:
         """
         with tempfile.TemporaryDirectory() as temp_dir:
             # Create two valid executable files
-            first_valid = os.path.join(temp_dir, 'browser1')
-            second_valid = os.path.join(temp_dir, 'browser2')
+            first_valid = os.path.join(temp_dir, f'browser1{_EXE}')
+            second_valid = os.path.join(temp_dir, f'browser2{_EXE}')
             
             for path in [first_valid, second_valid]:
                 with open(path, 'w') as f:
@@ -195,9 +197,9 @@ class TestUtils:
         executable browser is found in the provided paths.
         """
         invalid_paths = [
-            '/nonexistent/browser1',
-            '/nonexistent/browser2',
-            '/nonexistent/browser3'
+            f'/nonexistent/browser1{_EXE}',
+            f'/nonexistent/browser2{_EXE}',
+            f'/nonexistent/browser3{_EXE}'
         ]
         
         with pytest.raises(exceptions.InvalidBrowserPath) as exc_info:
@@ -213,7 +215,7 @@ class TestUtils:
         """
         with tempfile.TemporaryDirectory() as temp_dir:
             # Create a file that exists but is not executable
-            non_executable = os.path.join(temp_dir, 'browser')
+            non_executable = os.path.join(temp_dir, f'browser{_EXE}')
             with open(non_executable, 'w') as f:
                 f.write('not executable')
             # Don't set executable permissions
@@ -248,17 +250,17 @@ class TestUtils:
         """
         with tempfile.TemporaryDirectory() as temp_dir:
             # Create one valid executable
-            valid_path = os.path.join(temp_dir, 'browser')
+            valid_path = os.path.join(temp_dir, f'browser{_EXE}')
             with open(valid_path, 'w') as f:
                 f.write('#!/bin/bash\necho "browser"')
             os.chmod(valid_path, 0o755)
             
             # Mix valid and invalid paths
             paths = [
-                '/nonexistent/browser1',
-                '/nonexistent/browser2',
+                f'/nonexistent/browser1{_EXE}',
+                f'/nonexistent/browser2{_EXE}',
                 valid_path,
-                '/nonexistent/browser3'
+                f'/nonexistent/browser3{_EXE}'
             ]
             
             result = validate_browser_paths(paths)
@@ -286,7 +288,7 @@ class TestValidateBrowserPaths:
     def test_validate_browser_paths_valid_path(self, tmp_path):
         """Test with valid executable path."""
         # Create a temporary executable file
-        executable = tmp_path / "browser"
+        executable = tmp_path / f"browser{_EXE}"
         executable.write_text("#!/bin/bash\necho 'browser'")
         executable.chmod(0o755)
         

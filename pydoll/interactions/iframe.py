@@ -31,6 +31,12 @@ class IFrameContext:
     session_handler: Optional[ConnectionHandler] = None
     session_id: Optional[str] = None
 
+    async def close(self):
+        """Close the iframe context's session handler if set."""
+        if self.session_handler is not None:
+            await self.session_handler.close()
+            self.session_handler = None
+
 
 class IFrameContextResolver:
     """Resolves iframe context for WebElement."""
@@ -244,6 +250,10 @@ class IFrameContextResolver:
                 resolved_url or current_document_url,
             )
 
+        # Close the handler when resolved_url is falsy to avoid resource leaks
+        if session_handler is not None:
+            await session_handler.close()
+
         return (
             None,
             None,
@@ -277,6 +287,24 @@ class IFrameContextResolver:
             ws_address=self._element._connection_handler._ws_address,
             use_secure=self._element._connection_handler._use_secure,
         )
+        try:
+            return await self._try_resolve_oopif(
+                browser_handler, content_frame_id, backend_node_id,
+                base_handler, base_session_id,
+            )
+        except Exception:
+            await browser_handler.close()
+            raise
+
+    async def _try_resolve_oopif(
+        self,
+        browser_handler: ConnectionHandler,
+        content_frame_id: str,
+        backend_node_id: Optional[int],
+        base_handler: Optional[ConnectionHandler] = None,
+        base_session_id: Optional[str] = None,
+    ) -> tuple[Optional[ConnectionHandler], Optional[str], Optional[str], Optional[str]]:
+        """Attempt to resolve OOPIF by matching targets, closing browser_handler on no match."""
         targets_response: GetTargetsResponse = await browser_handler.execute_command(
             TargetCommands.get_targets()
         )
@@ -373,6 +401,7 @@ class IFrameContextResolver:
             if child_frame_id:
                 return browser_handler, attached_session_id, child_frame_id, None
 
+        await browser_handler.close()
         return None, None, None, None
 
     @staticmethod
