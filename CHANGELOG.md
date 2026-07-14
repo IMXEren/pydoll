@@ -1,3 +1,34 @@
+## [2.24.1](https://github.com/IMXEren/pydoll/compare/2.24.0...2.24.1) (2026-07-14)
+
+### Bug Fixes
+
+* **cloudflare:** re-query iframe body on each poll to avoid stale object_id ([456d86e](https://github.com/IMXEren/pydoll/commit/456d86e560e10d98b6d772519c15713dc897cacf))
+* **connection:** import Required from typing_extensions for Python 3.10 compat ([609f2f8](https://github.com/IMXEren/pydoll/commit/609f2f8940faf3d95ae1f5fce16e5009a77e7e10))
+* handle locked Session Storage files during Windows cleanup ([edcaab5](https://github.com/IMXEren/pydoll/commit/edcaab505bca903adf114acf4f13ecc9ea4faf08))
+* resource leaks, incorrect behavior, and deprecation warnings ([29bde4e](https://github.com/IMXEren/pydoll/commit/29bde4e4bbafd0d1a678d26492282d830491f1bc))
+
+### Documentation
+
+* export WSAddressResolverParams and add field-level docstrings ([d388a0c](https://github.com/IMXEren/pydoll/commit/d388a0c8291ee13b13ce1cb1021f962f79867cff))
+
+### CI/CD
+
+* automate release pipeline with semantic-release ([e35f4fc](https://github.com/IMXEren/pydoll/commit/e35f4fc34e67198fb261bc3aca469bd651550118))
+* remove build_pull_request.yml ([4c7aa42](https://github.com/IMXEren/pydoll/commit/4c7aa4260af5ec31b8141af1c5a8f2c63aaa142a))
+* restrict push triggers to main to avoid PR overlap ([f99dc1c](https://github.com/IMXEren/pydoll/commit/f99dc1ced8f1873fe125ecca30b70b1070712087))
+* **tests:** fix codecov file input ([ff31fc7](https://github.com/IMXEren/pydoll/commit/ff31fc7322a12b12b6ba1bbb1c3c4364abe499bd))
+
+### Chores
+
+* migrate repo references from autoscrape-labs to IMXEren ([3eb633d](https://github.com/IMXEren/pydoll/commit/3eb633d41021cb24a9792f63d5a375dee8ebc96e))
+* release v2.24.1-dev.1 [skip ci] ([0715a3d](https://github.com/IMXEren/pydoll/commit/0715a3de5332cbf44019a299423f2391cf1b678c))
+* release v2.24.1-dev.2 [skip ci] ([7d44fcc](https://github.com/IMXEren/pydoll/commit/7d44fccc20ae8359d9811a59a0dbb1473254a740))
+* release v2.24.1-dev.3 [skip ci] ([516a7f5](https://github.com/IMXEren/pydoll/commit/516a7f5f57708b5a403af15b7c2cb1006f6e1efc))
+
+### Tests
+
+* relax humanized move assertion for fast timing on Windows ([b2cb5ba](https://github.com/IMXEren/pydoll/commit/b2cb5ba4e3761dd6bff490cd0efdaf2c9232985b))
+
 ## [2.24.1-dev.3](https://github.com/IMXEren/pydoll/compare/2.24.1-dev.2...2.24.1-dev.3) (2026-07-14)
 
 ### Bug Fixes
