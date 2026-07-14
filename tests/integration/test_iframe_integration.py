@@ -543,7 +543,7 @@ class TestIframeElementInteraction:
             input_elem = await iframe_element.find(id='iframe-input', timeout=5)
             await input_elem.insert_text('Test text to clear')
 
-            await input_elem.insert_text('')
+            await input_elem.clear()
             value = input_elem.get_attribute('value')
             assert value in ('', None)
 

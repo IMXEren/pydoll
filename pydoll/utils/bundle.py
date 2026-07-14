@@ -5,7 +5,7 @@ from __future__ import annotations
 import base64 as _b64
 import posixpath
 import re
-from urllib.parse import urljoin, urlparse
+from urllib.parse import urljoin, urlsplit
 
 from pydoll.protocol.network.types import ResourceType
 from pydoll.protocol.page.types import FrameResource, FrameResourceTree
@@ -86,7 +86,7 @@ def collect_frame_resources(
 
 def build_asset_filename(url: str, mime_type: str, index: int) -> str:
     """Build a unique filename from a URL, MIME type, and index."""
-    parsed = urlparse(url)
+    parsed = urlsplit(url)
     basename = posixpath.basename(parsed.path) if parsed.path else ''
     if not basename or basename == '/':
         basename = 'resource'
@@ -167,12 +167,19 @@ def rewrite_html_urls(
     asset_map: dict[str, tuple[str, bytes, str, ResourceType]],
 ) -> str:
     """Rewrite asset URLs in HTML to point to local assets/ directory."""
-    for url, (filename, data, mime, rtype) in asset_map.items():
+    # Sort by URL length descending so longer paths are replaced first,
+    # preventing shorter root-relative paths from corrupting longer ones.
+    sorted_urls = sorted(asset_map.items(), key=lambda item: len(item[0]), reverse=True)
+    for url, (filename, data, mime, rtype) in sorted_urls:
         if rtype == ResourceType.STYLESHEET:
             css_text = data.decode('utf-8', errors='replace')
             rewritten_css = rewrite_css_urls(css_text, url, asset_map)
             asset_map[url] = (filename, rewritten_css.encode('utf-8'), mime, rtype)
         html = html.replace(url, f'assets/{filename}')
+        # Also replace root-relative paths (e.g., /style.css)
+        parsed = urlsplit(url)
+        if parsed.path:
+            html = html.replace(parsed.path, f'assets/{filename}')
     return html
 
 

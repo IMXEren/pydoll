@@ -135,6 +135,10 @@ async def test_clear_raises_when_element_rejects_input(fake_conn, make_element):
 async def test_insert_text_updates_cached_value(fake_conn, make_element):
     element = make_element(attributes=['tag_name', 'input'])
     fake_conn.set_response('Runtime.callFunctionOn', {'result': {'value': True}})
+    fake_conn.set_response(
+        'Runtime.callFunctionOn',
+        {'result': {'type': 'string', 'value': 'hello'}},
+    )
     await element.insert_text('hello')
     assert element.value == 'hello'
 

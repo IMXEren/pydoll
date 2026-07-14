@@ -1,13 +1,21 @@
 name: Release
-on: workflow_dispatch
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - main
+      - dev
+
+permissions:
+  contents: write
+  issues: write
+  pull-requests: write
 
 jobs:
-  version-cz:
+  release:
+    name: Release
     runs-on: ubuntu-latest
-    name: "Version CZ"
-    outputs:
-      version: ${{ steps.cz.outputs.version }}
-
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -15,66 +23,27 @@ jobs:
           fetch-depth: 0
           token: ${{ secrets.GITHUB_TOKEN }}
 
-      - id: cz
-        name: Create bump and changelog
-        uses: commitizen-tools/commitizen-action@master
+      - name: Setup Node.js
+        uses: actions/setup-node@v6
         with:
-          github_token: ${{ secrets.GITHUB_TOKEN }}
+          node-version: 'lts/*'
+          cache: 'npm'
 
-      - name: Print Version
-        run: echo "Bumped to version ${{ steps.cz.outputs.version }}"
-  
-  version-pyproject:
-    runs-on: ubuntu-latest
-    name: "Version Pyproject"
-    needs: version-cz
-    outputs:
-      version: ${{ needs.version-cz.outputs.version }}
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v4
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
         with:
-          fetch-depth: 0
-          token: ${{ secrets.GITHUB_TOKEN }}
+          python-version: '3.12'
 
       - name: Install Poetry
         run: |
           curl -sSL https://install.python-poetry.org | python3 -
-          export PATH="$HOME/.local/bin:$PATH"
+          echo "$HOME/.local/bin" >> $GITHUB_PATH
 
-      - name: Update Poetry version in pyproject.toml
-        run: |
-          git config --global user.name "github-actions[bot]"
-          git config --global user.email "github-actions[bot]@users.noreply.github.com"
-          poetry version "${{ needs.version-cz.outputs.version }}"
-          git add pyproject.toml
-          git commit -m "Update pyproject.toml to version ${{ needs.version-cz.outputs.version }}"
-          git pull --rebase
-          git push
-
-      - name: Update poetry.lock
-        continue-on-error: true
-        run: |
-          git config --global user.name "github-actions[bot]"
-          git config --global user.email "github-actions[bot]@users.noreply.github.com"
-          poetry lock
-          git add poetry.lock
-          git commit -m "Update poetry.lock"
-          git pull --rebase
-          git push
-
-
-  release:
-    name: Release
-    needs: version-pyproject
-    runs-on: ubuntu-latest
-    steps:
-      - name: Create Release
-        uses: softprops/action-gh-release@v1
-        with:
-          draft: false
-          prerelease: false
-          generate_release_notes: true
-          tag_name: ${{ needs.version-pyproject.outputs.version }}
+      - name: Release
+        uses: cycjimmy/semantic-release-action@v6
+        id: release
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

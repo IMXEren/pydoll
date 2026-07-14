@@ -57,6 +57,7 @@ from pydoll.exceptions import (
     NoDialogPresent,
     NotAnIFrame,
     PageLoadTimeout,
+    ShadowRootNotFound,
     TopLevelTargetRequired,
     WaitElementTimeout,
     WebSocketConnectionClosed,
@@ -630,13 +631,13 @@ class Tab(FindElementsMixin):
         if not timeout:
             return await self._collect_all_shadow_roots(deep)
 
-        start_time = asyncio.get_event_loop().time()
+        start_time = asyncio.get_running_loop().time()
         while True:
             shadow_roots = await self._collect_all_shadow_roots(deep)
             if shadow_roots:
                 return shadow_roots
 
-            if asyncio.get_event_loop().time() - start_time > timeout:
+            if asyncio.get_running_loop().time() - start_time > timeout:
                 raise WaitElementTimeout(
                     f'Timed out after {timeout}s waiting for shadow roots in page'
                 )
@@ -712,24 +713,27 @@ class Tab(FindElementsMixin):
             ws_address=self._ws_address,
             use_secure=self._use_secure,
         )
-        targets_response: GetTargetsResponse = await browser_handler.execute_command(
-            TargetCommands.get_targets()
-        )
+        try:
+            targets_response: GetTargetsResponse = await browser_handler.execute_command(
+                TargetCommands.get_targets()
+            )
 
-        target_infos = targets_response.get('result', {}).get('targetInfos', [])
-        iframe_targets = [t for t in target_infos if t.get('type') == 'iframe']
+            target_infos = targets_response.get('result', {}).get('targetInfos', [])
+            iframe_targets = [t for t in target_infos if t.get('type') == 'iframe']
 
-        if not iframe_targets:
-            logger.debug('No OOPIF targets found')
-            return []
+            if not iframe_targets:
+                logger.debug('No OOPIF targets found')
+                return []
 
-        shadow_roots: list[ShadowRoot] = []
-        for target in iframe_targets:
-            roots = await self._collect_shadow_roots_from_oopif_target(target, browser_handler)
-            shadow_roots.extend(roots)
+            shadow_roots: list[ShadowRoot] = []
+            for target in iframe_targets:
+                roots = await self._collect_shadow_roots_from_oopif_target(target, browser_handler)
+                shadow_roots.extend(roots)
 
-        logger.debug(f'Found {len(shadow_roots)} shadow roots in OOPIFs')
-        return shadow_roots
+            logger.debug(f'Found {len(shadow_roots)} shadow roots in OOPIFs')
+            return shadow_roots
+        finally:
+            await browser_handler.close()
 
     async def _collect_shadow_roots_from_oopif_target(
         self,
@@ -1692,7 +1696,7 @@ class Tab(FindElementsMixin):
             _page_events_was_enabled = False
             await self.enable_page_events()
 
-        loop = asyncio.get_event_loop()
+        loop = asyncio.get_running_loop()
         will_begin: asyncio.Future[bool] = loop.create_future()
         done: asyncio.Future[bool] = loop.create_future()
         state: dict[str, Any] = {
@@ -2000,7 +2004,7 @@ class Tab(FindElementsMixin):
             WaitElementTimeout: If no matching shadow root is found within
                 *timeout* seconds.
         """
-        start_time = asyncio.get_event_loop().time()
+        start_time = asyncio.get_running_loop().time()
         while True:
             shadow_roots = await self.find_shadow_roots(deep=False)
             for sr in shadow_roots:
@@ -2008,7 +2012,7 @@ class Tab(FindElementsMixin):
                 if _CLOUDFLARE_CHALLENGE_DOMAIN in html:
                     return sr
 
-            if asyncio.get_event_loop().time() - start_time > timeout:
+            if asyncio.get_running_loop().time() - start_time > timeout:
                 raise WaitElementTimeout(
                     f'Timed out after {timeout}s waiting for Cloudflare Turnstile shadow root'
                 )
@@ -2022,7 +2026,7 @@ class Tab(FindElementsMixin):
         """Attempt to bypass Cloudflare Turnstile captcha via shadow root traversal.
 
         Traverses shadow roots to locate the Cloudflare iframe, navigates into
-        it, and clicks the actual checkbox element (``span.cb-i``).
+        it, and clicks the actual checkbox element (``input[type="checkbox"]``).
         """
         try:
             timeout_int = int(time_to_wait_captcha)
@@ -2030,8 +2034,20 @@ class Tab(FindElementsMixin):
                 timeout=time_to_wait_captcha,
             )
             iframe = await shadow_root.query(_CLOUDFLARE_IFRAME_SELECTOR, timeout=timeout_int)
-            body = await iframe.find(tag_name='body', timeout=timeout_int)
-            inner_shadow = await body.get_shadow_root(timeout=time_to_wait_captcha)
+
+            start = asyncio.get_running_loop().time()
+            inner_shadow = None
+            while inner_shadow is None:
+                body = await iframe.find(tag_name='body', timeout=timeout_int)
+                try:
+                    inner_shadow = await body.get_shadow_root(timeout=0)
+                except ShadowRootNotFound:
+                    if asyncio.get_running_loop().time() - start > time_to_wait_captcha:
+                        msg = f'Timed out after {time_to_wait_captcha}s waiting for '
+                        'Turnstile inner shadow root'
+                        raise WaitElementTimeout(msg)
+                    await asyncio.sleep(0.5)
+
             checkbox = await inner_shadow.query(_CLOUDFLARE_CHECKBOX_SELECTOR, timeout=timeout_int)
             await checkbox.click()
         except Exception as exc:

@@ -16,7 +16,7 @@ body:
       label: Checklist before requesting
       description: Please make sure you've completed the following steps before submitting a feature request.
       options:
-        - label: I have searched for [similar feature requests](https://github.com/thalissonvs/pydoll/issues) and didn't find a duplicate.
+        - label: I have searched for [similar feature requests](https://github.com/IMXEren/pydoll/issues) and didn't find a duplicate.
           required: true
         - label: I have checked the documentation to confirm this feature doesn't already exist.
           required: true

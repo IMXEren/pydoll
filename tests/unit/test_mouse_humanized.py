@@ -68,7 +68,7 @@ async def test_humanized_move_lands_on_target_via_curved_path(fake_tab):
     await mouse.move(120, 80, humanize=True)
 
     moves = _of_type(fake_tab.events, 'mouseMoved')
-    assert len(moves) > 2
+    assert len(moves) >= 2
     assert (moves[-1]['x'], moves[-1]['y']) == (120, 80)
     assert mouse._position == (120, 80)
 

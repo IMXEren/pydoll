@@ -3,13 +3,13 @@
 </p>
 
 <p align="center">
-    <a href="https://codecov.io/gh/autoscrape-labs/pydoll">
-        <img src="https://codecov.io/gh/autoscrape-labs/pydoll/graph/badge.svg?token=40I938OGM9"/> 
+    <a href="https://codecov.io/gh/IMXEren/pydoll">
+        <img src="https://codecov.io/gh/IMXEren/pydoll/graph/badge.svg?token=L1WQBCFR3F"/> 
     </a>
-    <img src="https://github.com/thalissonvs/pydoll/actions/workflows/tests.yml/badge.svg" alt="Tests">
-    <img src="https://github.com/thalissonvs/pydoll/actions/workflows/ruff-ci.yml/badge.svg" alt="Ruff CI">
-    <img src="https://github.com/thalissonvs/pydoll/actions/workflows/release.yml/badge.svg" alt="Release">
-    <img src="https://github.com/thalissonvs/pydoll/actions/workflows/mypy.yml/badge.svg" alt="MyPy CI">
+    <img src="https://github.com/IMXEren/pydoll/actions/workflows/tests.yml/badge.svg" alt="Tests">
+    <img src="https://github.com/IMXEren/pydoll/actions/workflows/ruff-ci.yml/badge.svg" alt="Ruff CI">
+    <img src="https://github.com/IMXEren/pydoll/actions/workflows/release.yml/badge.svg" alt="Release">
+    <img src="https://github.com/IMXEren/pydoll/actions/workflows/mypy.yml/badge.svg" alt="MyPy CI">
 </p>
 
 
@@ -38,7 +38,7 @@ $ pip install pydoll-python
 For the latest development version, you can install directly from GitHub:
 
 ```bash
-$ pip install git+https://github.com/autoscrape-labs/pydoll.git
+$ pip install git+https://github.com/IMXEren/pydoll.git
 ```
 
 ## Why Choose Pydoll?
@@ -71,7 +71,7 @@ from pydoll.browser.chromium import Chrome
 async def main():
     async with Chrome() as browser:
         tab = await browser.start()
-        await tab.go_to('https://github.com/autoscrape-labs/pydoll')
+        await tab.go_to('https://github.com/IMXEren/pydoll')
 
         # Find elements and interact with human-like timing
         star_button = await tab.find(
@@ -183,7 +183,7 @@ async def main():
         tab = await browser.start()
 
         # 1. Navigate and interact (imperative)
-        await tab.go_to('https://github.com/autoscrape-labs')
+        await tab.go_to('https://github.com/IMXEren')
 
         # 2. Extract structured data (declarative)
         repos = await tab.extract_all(
@@ -275,33 +275,6 @@ That's it! This minimal dependency approach means:
 
 The small number of dependencies also contributes to Pydoll's reliability and performance, as there are fewer external factors that could impact its operation.
 
-## Top Sponsors
-
-<a href="https://substack.thewebscraping.club/p/pydoll-webdriver-scraping?utm_source=github&utm_medium=repo&utm_campaign=pydoll" target="_blank" rel="noopener nofollow sponsored">
-  <img src="resources/images/banner-the-webscraping-club.png" alt="The Web Scraping Club" />
-</a>
-
-<sub>Read a full review of Pydoll on <b><a href="https://substack.thewebscraping.club/p/pydoll-webdriver-scraping?utm_source=github&utm_medium=repo&utm_campaign=pydoll" target="_blank" rel="noopener nofollow sponsored">The Web Scraping Club</a></b>, the #1 newsletter dedicated to web scraping.</sub>
-
-## Sponsors
-
-The support from sponsors is essential to keep the project alive, evolving, and accessible to the entire community. Each partnership helps cover costs, drive new features, and ensure ongoing development. We are truly grateful to everyone who believes in and supports the project!
-
-<div class="sponsors-grid">
-  <a href="https://www.thordata.com/?ls=github&lk=pydoll" target="_blank" rel="noopener nofollow sponsored">
-    <img src="resources/images/Thordata-logo.png" alt="Thordata" />
-  </a>
-  <a href="https://www.testmuai.com/?utm_medium=sponsor&utm_source=pydoll" target="_blank" rel="noopener nofollow sponsored">
-    <img src="resources/images/logo-lamda-test.svg" alt="LambdaTest" />
-  </a>
-  <a href="https://dashboard.capsolver.com/passport/register?inviteCode=WPhTbOsbXEpc" target="_blank" rel="noopener nofollow sponsored">
-    <img src="resources/images/capsolver-logo.png" alt="CapSolver" />
-  </a>
-</div>
-
-<p>
-  <a href="https://github.com/sponsors/thalissonvs" target="_blank" rel="noopener">Become a sponsor</a>
-</p>
 
 ## License
 

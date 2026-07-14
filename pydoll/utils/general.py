@@ -147,6 +147,16 @@ async def get_browser_ws_address(params: WSAddressResolverParams) -> str:
         raise InvalidResponse(f'Failed to get browser ws address: {e}')
 
 
+def _is_executable(path: str) -> bool:
+    """Check if a path is an executable file, platform-aware."""
+    if os.name == 'nt':
+        # On Windows, check if the file extension is in PATHEXT
+        ext = os.path.splitext(path)[1].lower()
+        return ext in os.environ.get('PATHEXT', '.exe;.cmd;.bat').lower().split(';')
+    # On Unix, check the executable bit
+    return os.access(path, os.X_OK)
+
+
 def validate_browser_paths(paths: list[str]) -> str:
     """
     Validates potential browser executable paths and returns the first valid one.
@@ -166,7 +176,7 @@ def validate_browser_paths(paths: list[str]) -> str:
         InvalidBrowserPath: If the browser executable is not found at the path.
     """
     for path in paths:
-        if os.path.isfile(path) and os.access(path, os.X_OK):
+        if os.path.isfile(path) and _is_executable(path):
             return path
     raise InvalidBrowserPath(f'No valid browser path found in: {paths}')
 

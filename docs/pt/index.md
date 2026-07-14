@@ -3,13 +3,13 @@
 </p>
 
 <p align="center">
-    <a href="https://codecov.io/gh/autoscrape-labs/pydoll">
-        <img src="https://codecov.io/gh/autoscrape-labs/pydoll/graph/badge.svg?token=40I938OGM9"/>
+    <a href="https://codecov.io/gh/IMXEren/pydoll">
+        <img src="https://codecov.io/gh/IMXEren/pydoll/graph/badge.svg?token=L1WQBCFR3F"/>
     </a>
-    <img src="https://github.com/thalissonvs/pydoll/actions/workflows/tests.yml/badge.svg" alt="Testes">
-    <img src="https://github.com/thalissonvs/pydoll/actions/workflows/ruff-ci.yml/badge.svg" alt="Ruff CI">
-    <img src="https://github.com/thalissonvs/pydoll/actions/workflows/release.yml/badge.svg" alt="Release">
-    <img src="https://github.com/thalissonvs/pydoll/actions/workflows/mypy.yml/badge.svg" alt="MyPy CI">
+    <img src="https://github.com/IMXEren/pydoll/actions/workflows/tests.yml/badge.svg" alt="Testes">
+    <img src="https://github.com/IMXEren/pydoll/actions/workflows/ruff-ci.yml/badge.svg" alt="Ruff CI">
+    <img src="https://github.com/IMXEren/pydoll/actions/workflows/release.yml/badge.svg" alt="Release">
+    <img src="https://github.com/IMXEren/pydoll/actions/workflows/mypy.yml/badge.svg" alt="MyPy CI">
 </p>
 
 
@@ -38,7 +38,7 @@ $ pip install pydoll-python
 Para a versão de desenvolvimento mais recente, você pode instalar diretamente do GitHub:
 
 ```bash
-$ pip install git+https://github.com/autoscrape-labs/pydoll.git
+$ pip install git+https://github.com/IMXEren/pydoll.git
 ```
 
 ## Por que escolher o Pydoll?
@@ -71,7 +71,7 @@ from pydoll.browser.chromium import Chrome
 async def main():
     async with Chrome() as browser:
         tab = await browser.start()
-        await tab.go_to('https://github.com/autoscrape-labs/pydoll')
+        await tab.go_to('https://github.com/IMXEren/pydoll')
 
         # Encontra elementos e interage com timing humano
         star_button = await tab.find(
@@ -183,7 +183,7 @@ async def main():
         tab = await browser.start()
 
         # 1. Navegar e interagir (imperativo)
-        await tab.go_to('https://github.com/autoscrape-labs')
+        await tab.go_to('https://github.com/IMXEren')
 
         # 2. Extrair dados estruturados (declarativo)
         repos = await tab.extract_all(
@@ -275,33 +275,6 @@ typing_extensions = "^4.14.0"
 
 O pequeno número de dependências também contribui para a confiabilidade e o desempenho do Pydoll, pois há menos fatores externos que podem impactar seu funcionamento.
 
-## Top Sponsors
-
-<a href="https://substack.thewebscraping.club/p/pydoll-webdriver-scraping?utm_source=github&utm_medium=repo&utm_campaign=pydoll" target="_blank" rel="noopener nofollow sponsored">
-  <img src="../resources/images/banner-the-webscraping-club.png" alt="The Web Scraping Club" />
-</a>
-
-<sub>Leia uma review completa do Pydoll no <b><a href="https://substack.thewebscraping.club/p/pydoll-webdriver-scraping?utm_source=github&utm_medium=repo&utm_campaign=pydoll" target="_blank" rel="noopener nofollow sponsored">The Web Scraping Club</a></b>, a newsletter #1 dedicada a web scraping.</sub>
-
-## Patrocinadores
-
-O apoio dos patrocinadores é essencial para manter o projeto vivo, em constante evolução e acessível a toda a comunidade. Cada parceria ajuda a cobrir custos, impulsionar novos recursos e garantir o desenvolvimento contínuo. Somos muito gratos a todos que acreditam e apoiam o projeto!
-
-<div class="sponsors-grid">
-  <a href="https://www.thordata.com/?ls=github&lk=pydoll" target="_blank" rel="noopener nofollow sponsored">
-    <img src="../resources/images/Thordata-logo.png" alt="Thordata" />
-  </a>
-  <a href="https://www.testmuai.com/?utm_medium=sponsor&utm_source=pydoll" target="_blank" rel="noopener nofollow sponsored">
-    <img src="../resources/images/logo-lamda-test.svg" alt="LambdaTest" />
-  </a>
-  <a href="https://dashboard.capsolver.com/passport/register?inviteCode=WPhTbOsbXEpc" target="_blank" rel="noopener nofollow sponsored">
-    <img src="../resources/images/capsolver-logo.png" alt="CapSolver" />
-  </a>
-</div>
-
-<p>
-  <a href="https://github.com/sponsors/thalissonvs" target="_blank" rel="noopener">Seja um patrocinador</a>
-</p>
 
 
 ## Licença

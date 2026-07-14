@@ -238,8 +238,11 @@ class WebElement(FindElementsMixin):  # noqa: PLR0904
             return None
 
         resolver = self._get_iframe_resolver()
+        old_context = self._iframe_context
         self._iframe_context = await resolver.resolve()
         self._apply_routing_from_context()
+        if old_context is not None and old_context is not self._iframe_context:
+            await old_context.close()
         return self._iframe_context
 
     def get_attribute(self, name: str) -> Optional[str]:
@@ -299,14 +302,14 @@ class WebElement(FindElementsMixin):  # noqa: PLR0904
         if not timeout:
             return await self._get_shadow_root()
 
-        start_time = asyncio.get_event_loop().time()
+        start_time = asyncio.get_running_loop().time()
         while True:
             try:
                 return await self._get_shadow_root()
             except ShadowRootNotFound:
                 pass
 
-            if asyncio.get_event_loop().time() - start_time > timeout:
+            if asyncio.get_running_loop().time() - start_time > timeout:
                 raise WaitElementTimeout(
                     f'Timed out after {timeout}s waiting for shadow root on element'
                 )
@@ -512,7 +515,7 @@ class WebElement(FindElementsMixin):  # noqa: PLR0904
             f'Waiting for element: visible={is_visible}, '
             f'interactable={is_interactable}, timeout={timeout}s'
         )
-        loop = asyncio.get_event_loop()
+        loop = asyncio.get_running_loop()
         start_time = loop.time()
         while True:
             results = await asyncio.gather(*(check() for check in checks))
@@ -680,12 +683,15 @@ class WebElement(FindElementsMixin):  # noqa: PLR0904
         if not success:
             logger.error('Element does not accept text input')
             raise ElementNotInteractable('Element does not accept text input')
-        # Keep cached attributes coherent for common cases (e.g., input value)
-        # This avoids forcing a DOM round-trip for simple assertions.
+        # Re-read actual DOM value to keep cached attributes coherent (e.g., input value).
+        # This handles non-empty fields with caret positioning correctly.
         if self._attributes.get('tag_name', '').lower() in {'input', 'textarea'}:
-            # When inserting into an empty field, resulting value equals inserted text.
-            # For complex cases (non-empty with caret), tests usually check non-empty.
-            self._attributes['value'] = text
+            value_response = await self.execute_script(
+                'return this.value', return_by_value=True
+            )
+            self._attributes['value'] = (
+                value_response.get('result', {}).get('result', {}).get('value', '')
+            )
 
     async def set_input_files(self, files: str | Path | list[str | Path]):
         """

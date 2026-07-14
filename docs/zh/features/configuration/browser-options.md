@@ -596,7 +596,7 @@ def create_full_stealth_options() -> ChromiumOptions:
     
     # ===== 浏览器偏好设置 =====
     # 有关全面的浏览器偏好设置配置，请参阅：
-    # https://pydoll.tech/docs/features/configuration/browser-preferences/#stealth-fingerprinting
+    # https://imxeren.github.io/pydoll/docs/features/configuration/browser-preferences/#stealth-fingerprinting
     
     return options
 

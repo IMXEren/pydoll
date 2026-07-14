@@ -3,13 +3,13 @@
 </p>
 
 <p align="center">
-    <a href="https://codecov.io/gh/autoscrape-labs/pydoll">
-        <img src="https://codecov.io/gh/autoscrape-labs/pydoll/graph/badge.svg?token=40I938OGM9"/> 
+    <a href="https://codecov.io/gh/IMXEren/pydoll">
+        <img src="https://codecov.io/gh/IMXEren/pydoll/graph/badge.svg?token=L1WQBCFR3F"/> 
     </a>
-    <img src="https://github.com/thalissonvs/pydoll/actions/workflows/tests.yml/badge.svg" alt="Tests">
-    <img src="https://github.com/thalissonvs/pydoll/actions/workflows/ruff-ci.yml/badge.svg" alt="Ruff CI">
-    <img src="https://github.com/thalissonvs/pydoll/actions/workflows/release.yml/badge.svg" alt="Release">
-    <img src="https://github.com/thalissonvs/pydoll/actions/workflows/mypy.yml/badge.svg" alt="MyPy CI">
+    <img src="https://github.com/IMXEren/pydoll/actions/workflows/tests.yml/badge.svg" alt="Tests">
+    <img src="https://github.com/IMXEren/pydoll/actions/workflows/ruff-ci.yml/badge.svg" alt="Ruff CI">
+    <img src="https://github.com/IMXEren/pydoll/actions/workflows/release.yml/badge.svg" alt="Release">
+    <img src="https://github.com/IMXEren/pydoll/actions/workflows/mypy.yml/badge.svg" alt="MyPy CI">
 </p>
 
 
@@ -38,7 +38,7 @@ $ pip install pydoll-python
 你可以直接在GitHub上找到最新的开发版本:
 
 ```bash
-$ pip install git+https://github.com/autoscrape-labs/pydoll.git
+$ pip install git+https://github.com/IMXEren/pydoll.git
 ```
 
 ## 为何选择Pydoll?
@@ -71,7 +71,7 @@ from pydoll.browser.chromium import Chrome
 async def main():
     async with Chrome() as browser:
         tab = await browser.start()
-        await tab.go_to('https://github.com/autoscrape-labs/pydoll')
+        await tab.go_to('https://github.com/IMXEren/pydoll')
 
         # 查找元素并以人类般的时序进行交互
         star_button = await tab.find(
@@ -183,7 +183,7 @@ async def main():
         tab = await browser.start()
 
         # 1. 导航和交互（命令式）
-        await tab.go_to('https://github.com/autoscrape-labs')
+        await tab.go_to('https://github.com/IMXEren')
 
         # 2. 提取结构化数据（声明式）
         repos = await tab.extract_all(
@@ -275,33 +275,6 @@ typing_extensions = "^4.14.0"
 
 更少的依赖项带来了： 更高的运行可靠性以及更强的性能表现。
 
-## 顶级赞助商
-
-<a href="https://substack.thewebscraping.club/p/pydoll-webdriver-scraping?utm_source=github&utm_medium=repo&utm_campaign=pydoll" target="_blank" rel="noopener nofollow sponsored">
-  <img src="../resources/images/banner-the-webscraping-club.png" alt="The Web Scraping Club" />
-</a>
-
-<sub>在 <b><a href="https://substack.thewebscraping.club/p/pydoll-webdriver-scraping?utm_source=github&utm_medium=repo&utm_campaign=pydoll" target="_blank" rel="noopener nofollow sponsored">The Web Scraping Club</a></b> 上阅读 Pydoll 的完整评测，这是排名第一的网页抓取专属通讯。</sub>
-
-## 赞助商
-
-赞助商的支持对于项目的持续发展至关重要。每一份合作都能帮助我们覆盖基础成本、推动新功能迭代，并保证项目长期维护与更新。非常感谢所有相信并支持 Pydoll 的伙伴！
-
-<div class="sponsors-grid">
-  <a href="https://www.thordata.com/?ls=github&lk=pydoll" target="_blank" rel="noopener nofollow sponsored">
-    <img src="../resources/images/Thordata-logo.png" alt="Thordata" />
-  </a>
-  <a href="https://www.testmuai.com/?utm_medium=sponsor&utm_source=pydoll" target="_blank" rel="noopener nofollow sponsored">
-    <img src="../resources/images/logo-lamda-test.svg" alt="LambdaTest" />
-  </a>
-  <a href="https://dashboard.capsolver.com/passport/register?inviteCode=WPhTbOsbXEpc" target="_blank" rel="noopener nofollow sponsored">
-    <img src="../resources/images/capsolver-logo.png" alt="CapSolver" />
-  </a>
-</div>
-
-<p>
-  <a href="https://github.com/sponsors/thalissonvs" target="_blank" rel="noopener">成为赞助商</a>
-</p>
 
 ## 许可证
 

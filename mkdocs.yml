@@ -1,7 +1,7 @@
 site_name: Pydoll - Async Web Automation Library
-site_url: https://pydoll.tech/docs/
-repo_url: https://github.com/autoscrape-labs/pydoll
-repo_name: autoscrape-labs/pydoll
+site_url: https://imxeren.github.io/pydoll/docs/
+repo_url: https://github.com/IMXEren/pydoll
+repo_name: IMXEren/pydoll
 use_directory_urls: true
 docs_dir: docs
 
