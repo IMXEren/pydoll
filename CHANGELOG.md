@@ -1,3 +1,13 @@
+## [2.24.1-dev.3](https://github.com/IMXEren/pydoll/compare/2.24.1-dev.2...2.24.1-dev.3) (2026-07-14)
+
+### Bug Fixes
+
+* handle locked Session Storage files during Windows cleanup ([edcaab5](https://github.com/IMXEren/pydoll/commit/edcaab505bca903adf114acf4f13ecc9ea4faf08))
+
+### CI/CD
+
+* remove build_pull_request.yml ([4c7aa42](https://github.com/IMXEren/pydoll/commit/4c7aa4260af5ec31b8141af1c5a8f2c63aaa142a))
+
 ## [2.24.1-dev.2](https://github.com/IMXEren/pydoll/compare/2.24.1-dev.1...2.24.1-dev.2) (2026-07-14)
 
 ### Bug Fixes
