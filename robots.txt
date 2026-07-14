@@ -2,5 +2,5 @@ User-agent: *
 Disallow: /docs/search/
 Disallow: /docs/404.html
 
-Sitemap: https://pydoll.tech/sitemap.xml
-Sitemap: https://pydoll.tech/docs/sitemap.xml
+Sitemap: https://imxeren.github.io/pydoll/sitemap.xml
+Sitemap: https://imxeren.github.io/pydoll/docs/sitemap.xml
