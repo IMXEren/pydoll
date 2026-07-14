@@ -1,3 +1,9 @@
+## [2.24.1-dev.2](https://github.com/IMXEren/pydoll/compare/2.24.1-dev.1...2.24.1-dev.2) (2026-07-14)
+
+### Bug Fixes
+
+* resource leaks, incorrect behavior, and deprecation warnings ([29bde4e](https://github.com/IMXEren/pydoll/commit/29bde4e4bbafd0d1a678d26492282d830491f1bc))
+
 ## [2.24.1-dev.1](https://github.com/IMXEren/pydoll/compare/2.24.0...2.24.1-dev.1) (2026-07-14)
 
 ### Bug Fixes
