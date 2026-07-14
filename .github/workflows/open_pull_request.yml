@@ -6,6 +6,9 @@ on:
       - dev
   workflow_dispatch:
 
+env:
+  MESSAGE: Merge branch `${{ github.head_ref || github.ref_name }}` to `main`
+
 jobs:
   pull-request:
     name: Open pull request
@@ -18,10 +21,6 @@ jobs:
         uses: repo-sync/pull-request@v2
         with:
           destination_branch: main
-          pr_title: 'chore: merge dev into main'
-          pr_body: |
-            Accumulated changes from `dev` ready for release.
-
-            Merging will trigger automatic version bump, CHANGELOG update,
-            and GitHub Release via commitizen.
+          pr_title: 'chore: ${{ env.MESSAGE }}'
+          pr_body: 'This pull request will ${{ env.MESSAGE }}.'
           pr_draft: true
