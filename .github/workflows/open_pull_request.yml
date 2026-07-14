@@ -1,0 +1,27 @@
+name: Open PR to main
+
+on:
+  push:
+    branches:
+      - dev
+  workflow_dispatch:
+
+jobs:
+  pull-request:
+    name: Open pull request
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Open pull request
+        uses: repo-sync/pull-request@v2
+        with:
+          destination_branch: main
+          pr_title: 'chore: merge dev into main'
+          pr_body: |
+            Accumulated changes from `dev` ready for release.
+
+            Merging will trigger automatic version bump, CHANGELOG update,
+            and GitHub Release via commitizen.
+          pr_draft: true

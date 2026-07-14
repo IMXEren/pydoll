@@ -57,6 +57,7 @@ from pydoll.exceptions import (
     NoDialogPresent,
     NotAnIFrame,
     PageLoadTimeout,
+    ShadowRootNotFound,
     TopLevelTargetRequired,
     WaitElementTimeout,
     WebSocketConnectionClosed,
@@ -2022,7 +2023,7 @@ class Tab(FindElementsMixin):
         """Attempt to bypass Cloudflare Turnstile captcha via shadow root traversal.
 
         Traverses shadow roots to locate the Cloudflare iframe, navigates into
-        it, and clicks the actual checkbox element (``span.cb-i``).
+        it, and clicks the actual checkbox element (``input[type="checkbox"]``).
         """
         try:
             timeout_int = int(time_to_wait_captcha)
@@ -2030,8 +2031,20 @@ class Tab(FindElementsMixin):
                 timeout=time_to_wait_captcha,
             )
             iframe = await shadow_root.query(_CLOUDFLARE_IFRAME_SELECTOR, timeout=timeout_int)
-            body = await iframe.find(tag_name='body', timeout=timeout_int)
-            inner_shadow = await body.get_shadow_root(timeout=time_to_wait_captcha)
+
+            start = asyncio.get_event_loop().time()
+            inner_shadow = None
+            while inner_shadow is None:
+                body = await iframe.find(tag_name='body', timeout=timeout_int)
+                try:
+                    inner_shadow = await body.get_shadow_root(timeout=0)
+                except ShadowRootNotFound:
+                    if asyncio.get_event_loop().time() - start > time_to_wait_captcha:
+                        msg = f'Timed out after {time_to_wait_captcha}s waiting for '
+                        'Turnstile inner shadow root'
+                        raise WaitElementTimeout(msg)
+                    await asyncio.sleep(0.5)
+
             checkbox = await inner_shadow.query(_CLOUDFLARE_CHECKBOX_SELECTOR, timeout=timeout_int)
             await checkbox.click()
         except Exception as exc:

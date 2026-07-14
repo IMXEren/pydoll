@@ -1,10 +1,15 @@
 name: Release
-on: workflow_dispatch
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - main
 
 jobs:
   version-cz:
     runs-on: ubuntu-latest
     name: "Version CZ"
+    if: github.event_name != 'push' || (!contains(github.event.head_commit.message, 'Update pyproject.toml to version') && !startsWith(github.event.head_commit.message, 'bump:'))
     outputs:
       version: ${{ steps.cz.outputs.version }}
 
@@ -78,3 +83,23 @@ jobs:
           tag_name: ${{ needs.version-pyproject.outputs.version }}
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+  backmerge:
+    name: Backmerge main → dev
+    needs: release
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Merge main into dev
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email 'github-actions[bot]@users.noreply.github.com'
+          git fetch origin dev
+          git checkout -b dev origin/dev || git checkout dev
+          git merge main --no-edit
+          git push origin dev
