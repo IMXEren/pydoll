@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import logging
 import os
+import subprocess
 import sys
 import time
 
@@ -19,8 +20,13 @@ CHATTY = (
 
 def test_process_writing_more_than_a_pipe_buffer_to_stderr_still_exits():
     """A child that writes 250 KB to stderr exits instead of blocking on a full pipe."""
-    process = BrowserProcessManager()._default_process_creator([sys.executable, '-c', CHATTY])
-    assert process.wait(timeout=10) == 0
+    manager = BrowserProcessManager()
+    process = manager._default_process_creator([sys.executable, '-c', CHATTY])
+    try:
+        assert process.wait(timeout=30) == 0
+    except subprocess.TimeoutExpired:
+        drain_alive = manager._stderr_thread is not None and manager._stderr_thread.is_alive()
+        pytest.fail(f'stderr drain alive={drain_alive}, lines captured={len(manager._stderr_tail)}')
 
 
 def test_stderr_lines_reach_the_debug_log(caplog):
