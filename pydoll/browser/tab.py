@@ -1852,7 +1852,7 @@ class Tab(FindElementsMixin):
         Handle the Cloudflare Turnstile widget if it appears while the block runs.
 
         Args:
-            time_to_wait_captcha: Timeout for captcha detection (default 5s).
+            time_to_wait_captcha: Maximum seconds to wait for a load event and its handler.
         """
         captcha_processed = asyncio.Event()
 
@@ -1875,7 +1875,10 @@ class Tab(FindElementsMixin):
 
         try:
             yield
-            await captcha_processed.wait()
+            try:
+                await asyncio.wait_for(captcha_processed.wait(), timeout=time_to_wait_captcha)
+            except TimeoutError:
+                pass
         finally:
             await self._connection_handler.remove_callback(callback_id)
             if not _before_page_events_enabled:
@@ -2247,6 +2250,10 @@ class Tab(FindElementsMixin):
         inner_shadow = await body.get_shadow_root(timeout=0)
         checkbox = await inner_shadow.query(_CLOUDFLARE_CHECKBOX_SELECTOR, timeout=0)
         await checkbox.click()
+
+    async def handle_cloudflare_turnstile(self, time_to_wait_captcha: float = 5) -> None:
+        """Handle a Turnstile widget already present on the current page."""
+        await self._handle_cloudflare_turnstile({}, time_to_wait_captcha=time_to_wait_captcha)
 
     async def _handle_cloudflare_turnstile(
         self,

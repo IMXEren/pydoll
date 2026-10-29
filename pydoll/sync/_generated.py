@@ -1490,7 +1490,7 @@ class Tab(SyncBase):
         Handle the Cloudflare Turnstile widget if it appears while the block runs.
 
         Args:
-            time_to_wait_captcha: Timeout for captcha detection (default 5s).
+            time_to_wait_captcha: Maximum seconds to wait for a load event and its handler.
         """
         return mapping.from_impl(self._impl.expect_cloudflare_turnstile(time_to_wait_captcha=mapping.to_impl(time_to_wait_captcha)))
 
@@ -1538,6 +1538,10 @@ class Tab(SyncBase):
     def clear_callbacks(self):
         """Clear all registered event callbacks."""
         return mapping.from_impl(self._run(self._impl.clear_callbacks()))
+
+    def handle_cloudflare_turnstile(self, time_to_wait_captcha: float=5) -> None:
+        """Handle a Turnstile widget already present on the current page."""
+        self._run(self._impl.handle_cloudflare_turnstile(time_to_wait_captcha=mapping.to_impl(time_to_wait_captcha)))
 
     @overload
     def find(self, id: str | None=..., class_name: str | None=..., name: str | None=..., tag_name: str | None=..., text: str | None=..., timeout: int=..., find_all: Literal[False]=False, raise_exc: Literal[True]=True, **attributes) -> WebElement: ...

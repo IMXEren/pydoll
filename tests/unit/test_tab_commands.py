@@ -9,6 +9,9 @@ suite (tests/integration/test_tab.py).
 
 from __future__ import annotations
 
+import asyncio
+from unittest.mock import AsyncMock, patch
+
 import pytest
 
 from pydoll.browser.chromium import Chrome
@@ -225,6 +228,31 @@ async def test_expect_cloudflare_turnstile_listens_only_while_its_block_runs(fak
         await callbacks[0]({'method': 'Page.loadEventFired', 'params': {}})
     assert fake_conn.callbacks_for('Page.loadEventFired') == []
     assert fake_tab.page_events_enabled is False
+
+
+@pytest.mark.asyncio
+async def test_turnstile_context_without_load_cleans_up(fake_conn, fake_tab):
+    async def wait_without_load():
+        async with fake_tab.expect_cloudflare_turnstile(time_to_wait_captcha=0.01):
+            assert fake_conn.callbacks_for('Page.loadEventFired')
+
+    await asyncio.wait_for(wait_without_load(), timeout=0.2)
+    assert fake_conn.callbacks_for('Page.loadEventFired') == []
+    assert fake_tab.page_events_enabled is False
+
+
+@pytest.mark.asyncio
+async def test_handle_cloudflare_turnstile_scans_the_current_page(fake_tab):
+    root = object()
+    with (
+        patch.object(
+            fake_tab, '_find_cloudflare_shadow_root', new_callable=AsyncMock, return_value=root
+        ) as find,
+        patch.object(fake_tab, '_click_cloudflare_checkbox', new_callable=AsyncMock) as click,
+    ):
+        await fake_tab.handle_cloudflare_turnstile(time_to_wait_captcha=0)
+    find.assert_awaited_once_with()
+    click.assert_awaited_once_with(root)
 
 
 @pytest.mark.asyncio
