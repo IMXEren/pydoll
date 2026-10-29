@@ -417,6 +417,10 @@ class TestContext:
         assert await response.header_value('set-cookie') == 'session=abc; Path=/'
         assert await response.header_values('set-cookie') == ['session=abc; Path=/']
         assert {'name': 'set-cookie', 'value': 'session=abc; Path=/'} in await response.headers_array()
+        assert any(
+            cookie['name'] == 'session' and cookie['value'] == 'abc'
+            for cookie in await page.context.cookies([http_server])
+        )
         async with page.expect_request('**/test_core_simple.html') as second:
             await page.goto(f'{http_server}/test_core_simple.html')
         request = await second.value
