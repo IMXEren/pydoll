@@ -27,4 +27,4 @@ jobs:
       - name: Install dependencies
         run: uv sync --locked --python ${{ matrix.python-version }}
       - name: ruff
-        run: uv run --locked ruff check .
+        run: uv run --locked --python ${{ matrix.python-version }} ruff check .

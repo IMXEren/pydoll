@@ -6,7 +6,7 @@ import asyncio
 import logging
 import types
 from collections.abc import Coroutine
-from typing import TYPE_CHECKING, TypeVar, Union, get_args, get_origin
+from typing import TYPE_CHECKING, TypeGuard, TypeVar, Union, get_args, get_origin
 
 from pydoll.elements.mixins.find_elements_mixin import FindElementsMixin
 from pydoll.elements.web_element import WebElement
@@ -154,7 +154,7 @@ class ExtractionEngine:
     async def _extract_field(
         self,
         metadata: ExtractionMetadata,
-        annotation: type,
+        annotation: object,
         context: FindElementsMixin,
         timeout: int,
     ) -> str | int | float | bool | list[str] | object:
@@ -185,7 +185,7 @@ class ExtractionEngine:
     async def _extract_list_field(
         self,
         metadata: ExtractionMetadata,
-        annotation: type,
+        annotation: object,
         context: FindElementsMixin,
         timeout: int,
     ) -> list[str | int | float | bool | object]:
@@ -309,7 +309,7 @@ def _build_instance(
         raise FieldExtractionFailed(f'Failed to build {model.__name__}: {exc}') from exc
 
 
-def _unwrap_optional(annotation: type) -> type:
+def _unwrap_optional(annotation: object) -> object:
     """Unwrap X | None (or typing.Optional[X]) to X. Returns annotation unchanged otherwise.
 
     Handles both typing.Optional (Union) and PEP 604 syntax (types.UnionType).
@@ -323,12 +323,12 @@ def _unwrap_optional(annotation: type) -> type:
     return annotation
 
 
-def _is_list_type(annotation: type) -> bool:
+def _is_list_type(annotation: object) -> bool:
     """Check if annotation is list[X]."""
     return get_origin(annotation) is list
 
 
-def _get_inner_type(annotation: type) -> type:
+def _get_inner_type(annotation: object) -> object:
     """Get X from list[X]."""
     args = get_args(annotation)
     if args:
@@ -336,7 +336,7 @@ def _get_inner_type(annotation: type) -> type:
     return str
 
 
-def _is_extraction_model(annotation: type) -> bool:
+def _is_extraction_model(annotation: object) -> TypeGuard[type[ExtractionModel]]:
     """Check if annotation is an ExtractionModel subclass."""
     try:
         return isinstance(annotation, type) and issubclass(annotation, ExtractionModel)
