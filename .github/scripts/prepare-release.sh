@@ -8,12 +8,9 @@ if [ -z "$VERSION" ]; then
   exit 1
 fi
 
-# semantic-release dev branch produces e.g. 2.24.1-dev.1
-# Poetry needs PEP 440: 2.24.1.dev1
-if echo "$VERSION" | grep -q -- '-dev.'; then
-  VERSION="$(echo "$VERSION" | sed 's/-dev./.dev/')"
-fi
+# semantic-release dev branch produces e.g. 3.0.1-dev.1 (PEP 440: 3.0.1.dev1).
+VERSION="${VERSION/-dev./.dev}"
 
 echo "Setting version to $VERSION"
-poetry version "$VERSION"
-poetry lock
+uv version --no-sync "$VERSION"
+uv lock --check

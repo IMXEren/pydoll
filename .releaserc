@@ -13,6 +13,7 @@
       {
         "preset": "conventionalcommits",
         "releaseRules": [
+          { "breaking": true, "release": "major" },
           { "type": "fix", "release": "patch" },
           { "type": "feat", "release": "minor" },
           { "type": "perf", "release": "patch" },
@@ -54,7 +55,7 @@
         "assets": [
           "CHANGELOG.md",
           "pyproject.toml",
-          "poetry.lock"
+          "uv.lock"
         ],
         "message": "chore: release v${nextRelease.version} [skip ci]\n\n${nextRelease.notes}"
       }

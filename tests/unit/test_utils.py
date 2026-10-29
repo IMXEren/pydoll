@@ -1,12 +1,13 @@
-import aiohttp
-import pytest
-from aioresponses import aioresponses
-import tempfile
 import os
 import sys
-from unittest.mock import patch
+import tempfile
+from collections.abc import AsyncIterator
+from contextlib import asynccontextmanager
+from unittest.mock import AsyncMock, MagicMock, patch
 
-_EXE = '.exe' if os.name == 'nt' else ''
+import pytest
+from aiohttp import web
+from aiohttp.test_utils import TestServer
 
 from pydoll import exceptions
 from pydoll.connection.types import WSAddressResolverParams
@@ -21,6 +22,8 @@ from pydoll.utils import (
     extract_text_from_html,
 )
 
+_EXE = '.exe' if os.name == 'nt' else ''
+
 
 def test_normalize_synthetic_xpath_extracts_inner_xpath():
     assert normalize_synthetic_xpath('//*[@xpath="//div[@id=\'x\']"]') == "//div[@id='x']"
@@ -33,6 +36,24 @@ def test_normalize_synthetic_xpath_passes_through_plain_selector():
 def test_normalize_synthetic_xpath_returns_input_when_unparseable():
     assert normalize_synthetic_xpath("//*[@xpath='x']") == "//*[@xpath='x']"
     assert normalize_synthetic_xpath('//*[@xpath="abc') == '//*[@xpath="abc'
+
+
+@asynccontextmanager
+async def _serve_version(payload=None, *, status=200, body=None, disconnect=False) -> AsyncIterator[int]:
+    async def version(request):
+        if disconnect:
+            request.transport.abort()
+            return web.Response()
+        if body is not None:
+            return web.Response(text=body, content_type='application/json', status=status)
+        return web.json_response(payload or {}, status=status)
+
+    app = web.Application()
+    app.router.add_get('/json/version', version)
+    async with TestServer(app, host='localhost') as server:
+        port = server.port
+        assert isinstance(port, int)
+        yield port
 
 
 class TestUtils:
@@ -74,16 +95,9 @@ class TestUtils:
         Verifies that the function correctly returns the WebSocket URL when
         the API response contains the expected field.
         """
-        port = 9222
         expected_url = 'ws://localhost:9222/devtools/browser/abc123'
-
-        with aioresponses() as mocked:
-            mocked.get(
-                f'http://localhost:{port}/json/version',
-                payload={'webSocketDebuggerUrl': expected_url},
-            )
-            result = await get_browser_ws_address(WSAddressResolverParams(host='localhost', port=port, use_secure=False))
-            assert result == expected_url
+        async with _serve_version({'webSocketDebuggerUrl': expected_url}) as port:
+            assert await get_browser_ws_address(port) == expected_url
 
     @pytest.mark.asyncio
     async def test_network_error(self):
@@ -92,15 +106,9 @@ class TestUtils:
         Verifies that the function raises the appropriate NetworkError exception
         when there's a communication failure with the browser.
         """
-        port = 9222
-
-        with pytest.raises(exceptions.NetworkError):
-            with aioresponses() as mocked:
-                mocked.get(
-                    f'http://localhost:{port}/json/version',
-                    exception=aiohttp.ClientError,
-                )
-                await get_browser_ws_address(WSAddressResolverParams(host='localhost', port=port, use_secure=False))
+        async with _serve_version(disconnect=True) as port:
+            with pytest.raises(exceptions.NetworkError):
+                await get_browser_ws_address(port)
 
     @pytest.mark.asyncio
     async def test_missing_websocket_url(self):
@@ -109,15 +117,9 @@ class TestUtils:
         Verifies that the function raises InvalidResponse exception when the
         'webSocketDebuggerUrl' field is missing from the response.
         """
-        port = 9222
-
-        with aioresponses() as mocked:
-            mocked.get(
-                f'http://localhost:{port}/json/version',
-                payload={'someOtherKey': 'value'},
-            )
+        async with _serve_version({'someOtherKey': 'value'}) as port:
             with pytest.raises(exceptions.InvalidResponse):
-                await get_browser_ws_address(WSAddressResolverParams(host='localhost', port=port, use_secure=False))
+                await get_browser_ws_address(port)
 
     @pytest.mark.asyncio
     async def test_http_error_status(self):
@@ -126,15 +128,9 @@ class TestUtils:
         Verifies that the function raises NetworkError when the server
         returns an HTTP error status code.
         """
-        port = 9222
-
-        with pytest.raises(exceptions.NetworkError):
-            with aioresponses() as mocked:
-                mocked.get(
-                    f'http://localhost:{port}/json/version',
-                    status=404
-                )
-                await get_browser_ws_address(WSAddressResolverParams(host='localhost', port=port, use_secure=False))
+        async with _serve_version(status=404) as port:
+            with pytest.raises(exceptions.NetworkError):
+                await get_browser_ws_address(port)
 
     @pytest.mark.asyncio
     async def test_custom_port(self):
@@ -142,16 +138,9 @@ class TestUtils:
         Test get_browser_ws_address with a custom port.
         Verifies that the function works correctly with non-default ports.
         """
-        port = 9333
         expected_url = 'ws://localhost:9333/devtools/browser/xyz789'
-
-        with aioresponses() as mocked:
-            mocked.get(
-                f'http://localhost:{port}/json/version',
-                payload={'webSocketDebuggerUrl': expected_url},
-            )
-            result = await get_browser_ws_address(WSAddressResolverParams(host='localhost', port=port, use_secure=False))
-            assert result == expected_url
+        async with _serve_version({'webSocketDebuggerUrl': expected_url}) as port:
+            assert await get_browser_ws_address(port) == expected_url
 
     def test_validate_browser_paths_success(self):
         """
@@ -165,7 +154,7 @@ class TestUtils:
                 f.write('#!/bin/bash\necho "browser"')
             os.chmod(valid_path, 0o755)  # Make it executable
             
-            invalid_path = f'/nonexistent/browser{_EXE}'
+            invalid_path = '/nonexistent/browser'
             paths = [invalid_path, valid_path]
             
             result = validate_browser_paths(paths)
@@ -197,9 +186,9 @@ class TestUtils:
         executable browser is found in the provided paths.
         """
         invalid_paths = [
-            f'/nonexistent/browser1{_EXE}',
-            f'/nonexistent/browser2{_EXE}',
-            f'/nonexistent/browser3{_EXE}'
+            '/nonexistent/browser1',
+            '/nonexistent/browser2',
+            '/nonexistent/browser3'
         ]
         
         with pytest.raises(exceptions.InvalidBrowserPath) as exc_info:
@@ -215,7 +204,7 @@ class TestUtils:
         """
         with tempfile.TemporaryDirectory() as temp_dir:
             # Create a file that exists but is not executable
-            non_executable = os.path.join(temp_dir, f'browser{_EXE}')
+            non_executable = os.path.join(temp_dir, 'browser')
             with open(non_executable, 'w') as f:
                 f.write('not executable')
             # Don't set executable permissions
@@ -254,13 +243,13 @@ class TestUtils:
             with open(valid_path, 'w') as f:
                 f.write('#!/bin/bash\necho "browser"')
             os.chmod(valid_path, 0o755)
-            
+
             # Mix valid and invalid paths
             paths = [
-                f'/nonexistent/browser1{_EXE}',
-                f'/nonexistent/browser2{_EXE}',
+                '/nonexistent/browser1',
+                '/nonexistent/browser2',
                 valid_path,
-                f'/nonexistent/browser3{_EXE}'
+                '/nonexistent/browser3'
             ]
             
             result = validate_browser_paths(paths)
@@ -455,3 +444,25 @@ class TestScriptAnalysisFunctions:
                 '<template>hidden</template></div>')
         result = extract_text_from_html(html, strip=True, separator="/")
         assert result == 'Hello/world'
+
+
+@pytest.mark.asyncio
+async def test_secure_remote_resolver():
+    params = WSAddressResolverParams(host='remote.example', port=9443, use_secure=True)
+    expected_url = 'wss://remote.example:9443/devtools/browser/abc'
+    with patch('pydoll.utils.general.aiohttp.ClientSession') as session_class:
+        session = session_class.return_value.__aenter__.return_value
+        session.get = MagicMock()
+        response = session.get.return_value.__aenter__.return_value
+        response.raise_for_status = MagicMock()
+        response.json = AsyncMock(return_value={'webSocketDebuggerUrl': expected_url})
+        assert await get_browser_ws_address(params) == expected_url
+        assert session.get.call_args.args[0] == 'https://remote.example:9443/json/version'
+
+
+@pytest.mark.asyncio
+async def test_invalid_json_from_resolver_is_invalid_response():
+    async with _serve_version(body='not json') as port:
+        params = WSAddressResolverParams(host='localhost', port=port, use_secure=False)
+        with pytest.raises(exceptions.InvalidResponse):
+            await get_browser_ws_address(params)

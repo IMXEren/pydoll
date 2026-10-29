@@ -16,6 +16,7 @@ from __future__ import annotations
 
 import dataclasses
 import json
+from unittest.mock import patch
 
 import pytest
 
@@ -102,7 +103,14 @@ async def test_humanized_scroll_up_moves_the_page_back():
 async def test_overshoot_triggers_a_corrective_reverse_flick():
     timing = dataclasses.replace(FAST, overshoot_probability=1.0)
     page = FakeScrollPage()
-    await Scroll(page, timing=timing).by(ScrollPosition.DOWN, 500, humanize=True)
+    scroll = Scroll(page, timing=timing)
+
+    async def complete_overshoot(distance, _duration, _is_vertical, _direction):
+        await scroll._dispatch_scroll_event(delta_x=0, delta_y=int(distance))
+        return distance
+
+    with patch.object(scroll, '_perform_scroll_loop', side_effect=complete_overshoot):
+        await scroll.by(ScrollPosition.DOWN, 500, humanize=True)
 
     deltas = _delta_ys(page)
     assert any(delta > 0 for delta in deltas)

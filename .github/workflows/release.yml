@@ -37,10 +37,7 @@ jobs:
         with:
           python-version: '3.12'
 
-      - name: Install Poetry
-        run: |
-          curl -sSL https://install.python-poetry.org | python3 -
-          echo "$HOME/.local/bin" >> $GITHUB_PATH
+      - uses: astral-sh/setup-uv@v6
 
       - name: Release
         uses: cycjimmy/semantic-release-action@v6

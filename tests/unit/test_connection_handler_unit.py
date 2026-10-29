@@ -80,25 +80,23 @@ class TestResolveWsAddress:
         assert address == 'ws://myhost:9999/devtools/browser/fake-resolved'
 
 
-class TestGetWsScheme:
-    """Tests for ConnectionHandler._get_ws_scheme."""
+    @pytest.mark.asyncio
+    async def test_secure_page_address(self):
+        handler = ConnectionHandler(
+            connection_host='remote.example', connection_port=443, page_id='abc', use_secure=True
+        )
+        assert await handler._resolve_ws_address() == 'wss://remote.example:443/devtools/page/abc'
 
-    def test_use_secure_true_returns_wss(self):
-        handler = ConnectionHandler(use_secure=True)
-        assert handler._get_ws_scheme() == 'wss'
+    @pytest.mark.asyncio
+    async def test_missing_port_fails_before_resolution(self):
+        from pydoll.exceptions import MissingTargetOrWebSocket
 
-    def test_use_secure_false_returns_ws(self):
-        handler = ConnectionHandler(use_secure=False)
-        assert handler._get_ws_scheme() == 'ws'
-
-    def test_use_secure_default_returns_ws(self):
         handler = ConnectionHandler()
-        assert handler._get_ws_scheme() == 'ws'
+        with pytest.raises(MissingTargetOrWebSocket):
+            await handler._resolve_ws_address()
 
-    def test_ws_address_scheme_used_over_use_secure(self):
-        handler = ConnectionHandler(ws_address='wss://host:9222', use_secure=False)
-        assert handler._get_ws_scheme() == 'wss'
-
-    def test_ws_address_ws_scheme(self):
-        handler = ConnectionHandler(ws_address='ws://host:9222', use_secure=True)
-        assert handler._get_ws_scheme() == 'ws'
+    @pytest.mark.asyncio
+    async def test_ws_address_overrides_host_and_port(self):
+        handler = ConnectionHandler(ws_address='wss://remote.example/devtools/browser/abc')
+        assert await handler._resolve_ws_address() == 'wss://remote.example/devtools/browser/abc'
+        assert handler._connection_port == 443

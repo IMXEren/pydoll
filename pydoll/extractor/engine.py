@@ -6,7 +6,7 @@ import asyncio
 import logging
 import types
 from collections.abc import Coroutine
-from typing import TYPE_CHECKING, Optional, TypeVar, Union, get_args, get_origin
+from typing import TYPE_CHECKING, TypeGuard, TypeVar, Union, get_args, get_origin
 
 from pydoll.elements.mixins.find_elements_mixin import FindElementsMixin
 from pydoll.elements.web_element import WebElement
@@ -36,7 +36,7 @@ class ExtractionEngine:
         self,
         model: type[T],
         *,
-        scope: Optional[str] = None,
+        scope: str | None = None,
         timeout: int = 0,
     ) -> T:
         """Extract a single model instance from the page.
@@ -70,7 +70,7 @@ class ExtractionEngine:
         *,
         scope: str,
         timeout: int = 0,
-        limit: Optional[int] = None,
+        limit: int | None = None,
     ) -> list[T]:
         """Extract multiple model instances from repeated containers.
 
@@ -105,7 +105,7 @@ class ExtractionEngine:
         model: type[T],
         context: FindElementsMixin,
         timeout: int,
-    ) -> dict[str, Union[str, int, float, bool, list[str], object]]:
+    ) -> dict[str, str | int | float | bool | list[str] | object]:
         """Extract all fields from the DOM concurrently.
 
         Launches all field extractions in parallel using asyncio.gather,
@@ -120,9 +120,7 @@ class ExtractionEngine:
             Dictionary of field name -> extracted value.
         """
         field_names: list[str] = []
-        coroutines: list[
-            Coroutine[None, None, Union[str, int, float, bool, list[str], object]]
-        ] = []
+        coroutines: list[Coroutine[None, None, str | int | float | bool | list[str] | object]] = []
 
         for name, metadata in model.get_extraction_fields().items():
             if not metadata.has_selector:
@@ -139,7 +137,7 @@ class ExtractionEngine:
 
         results = await asyncio.gather(*coroutines, return_exceptions=True)
 
-        values: dict[str, Union[str, int, float, bool, list[str], object]] = {}
+        values: dict[str, str | int | float | bool | list[str] | object] = {}
         for name, result in zip(field_names, results):
             if isinstance(result, BaseException):
                 field_info = model.model_fields[name]
@@ -156,10 +154,10 @@ class ExtractionEngine:
     async def _extract_field(
         self,
         metadata: ExtractionMetadata,
-        annotation: type,
+        annotation: object,
         context: FindElementsMixin,
         timeout: int,
-    ) -> Union[str, int, float, bool, list[str], object]:
+    ) -> str | int | float | bool | list[str] | object:
         """Extract a single field value from the DOM.
 
         Handles scalar types, list types, nested ExtractionModel,
@@ -187,10 +185,10 @@ class ExtractionEngine:
     async def _extract_list_field(
         self,
         metadata: ExtractionMetadata,
-        annotation: type,
+        annotation: object,
         context: FindElementsMixin,
         timeout: int,
-    ) -> list[Union[str, int, float, bool, object]]:
+    ) -> list[str | int | float | bool | object]:
         """Extract a list of values from multiple matching elements."""
         selector = metadata.selector
         if selector is None:
@@ -235,7 +233,7 @@ async def _extract_scalar_field(
     metadata: ExtractionMetadata,
     context: FindElementsMixin,
     timeout: int,
-) -> Union[str, int, float, bool, object]:
+) -> str | int | float | bool | object:
     """Extract a single scalar value from the DOM."""
     selector = metadata.selector
     if selector is None:
@@ -255,7 +253,7 @@ async def _extract_value(
     """Read raw string value from a WebElement.
 
     If metadata.attribute is set, reads that HTML attribute.
-    Otherwise reads element.text (innerText).
+    Otherwise reads element.text() (innerText).
 
     Args:
         element: WebElement to read from.
@@ -266,13 +264,13 @@ async def _extract_value(
     """
     if metadata.attribute is not None:
         return element.get_attribute(metadata.attribute) or ''
-    return await element.text
+    return await element.text()
 
 
 def _apply_transform(
     raw: str,
     metadata: ExtractionMetadata,
-) -> Union[str, int, float, bool, object]:
+) -> str | int | float | bool | object:
     """Apply metadata.transform to the raw extracted string.
 
     Args:
@@ -289,7 +287,7 @@ def _apply_transform(
 
 def _build_instance(
     model: type[T],
-    values: dict[str, Union[str, int, float, bool, list[str], object]],
+    values: dict[str, str | int | float | bool | list[str] | object],
 ) -> T:
     """Build model instance from extracted values.
 
@@ -311,8 +309,8 @@ def _build_instance(
         raise FieldExtractionFailed(f'Failed to build {model.__name__}: {exc}') from exc
 
 
-def _unwrap_optional(annotation: type) -> type:
-    """Unwrap Optional[X] or X | None to X. Returns annotation unchanged otherwise.
+def _unwrap_optional(annotation: object) -> object:
+    """Unwrap X | None (or typing.Optional[X]) to X. Returns annotation unchanged otherwise.
 
     Handles both typing.Optional (Union) and PEP 604 syntax (types.UnionType).
     """
@@ -325,12 +323,12 @@ def _unwrap_optional(annotation: type) -> type:
     return annotation
 
 
-def _is_list_type(annotation: type) -> bool:
+def _is_list_type(annotation: object) -> bool:
     """Check if annotation is list[X]."""
     return get_origin(annotation) is list
 
 
-def _get_inner_type(annotation: type) -> type:
+def _get_inner_type(annotation: object) -> object:
     """Get X from list[X]."""
     args = get_args(annotation)
     if args:
@@ -338,7 +336,7 @@ def _get_inner_type(annotation: type) -> type:
     return str
 
 
-def _is_extraction_model(annotation: type) -> bool:
+def _is_extraction_model(annotation: object) -> TypeGuard[type[ExtractionModel]]:
     """Check if annotation is an ExtractionModel subclass."""
     try:
         return isinstance(annotation, type) and issubclass(annotation, ExtractionModel)

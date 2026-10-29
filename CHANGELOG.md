@@ -1,3 +1,224 @@
+## [3.0.0-dev.3](https://github.com/IMXEren/pydoll/compare/3.0.0-dev.2...3.0.0-dev.3) (2026-10-29)
+
+### Bug Fixes
+
+* **tab:** catch asyncio timeout on Python 3.10 ([266b700](https://github.com/IMXEren/pydoll/commit/266b7004b7bdc4abbaac9f6f792639b7fe937f6e))
+
+### Tests
+
+* **scroll:** make overshoot correction check deterministic ([fbd373c](https://github.com/IMXEren/pydoll/commit/fbd373c4cbcaa6521b67b4411ab904f1d452cf2b))
+
+## [3.0.0-dev.2](https://github.com/IMXEren/pydoll/compare/3.0.0-dev.1...3.0.0-dev.2) (2026-10-29)
+
+### Features
+
+* **tab:** support bounded on-demand Turnstile handling ([49910b6](https://github.com/IMXEren/pydoll/commit/49910b691b42046370f862e833a9277d493788a4))
+
+## [3.0.0-dev.1](https://github.com/IMXEren/pydoll/compare/2.24.1...3.0.0-dev.1) (2026-10-29)
+
+### ⚠ BREAKING CHANGES
+
+* Upstream v3 replaces async properties with methods and removes deprecated 2.x APIs; the synchronous API is available under pydoll.sync.
+* expect_cloudflare_turnstile is the only Turnstile handler
+* name the Cloudflare helpers after what they do
+* the async properties are now methods (tab.title(),
+tab.current_url(), tab.page_source(), element.text(), element.inner_html(),
+element.bounds(), element.iframe_context(), shadow_root.inner_html()), and
+everything that raised DeprecationWarning in 2.x is removed: Tab.get_frame(),
+the element argument of Tab.execute_script(), WebElement.key_down/key_up/
+press_keyboard_key, type_text(interval=), Browser.start(headless=), the
+custom_selector/time_before_click arguments of the Cloudflare helpers and the
+NotAnIFrame/IFrameNotFound exceptions. _DownloadHandle is now DownloadHandle.
+
+The top-level pydoll package exports the async API (Chrome, Edge, Tab,
+WebElement, ShadowRoot, Keyboard, Mouse, Scroll, Request, Response,
+DownloadHandle, ChromiumOptions, Key, ExtractionModel, Field, PageEvent,
+NetworkEvent, FetchEvent) and pydoll.sync exports the same names, so the two
+forms differ by one import line. The docs, README and examples use the new
+imports and method calls, and a new "Upgrading to Pydoll 3" page lists every
+change with its replacement.
+
+### Features
+
+* add browser fingerprint injection ([b85c3ae](https://github.com/IMXEren/pydoll/commit/b85c3ae859fa98881e7fc3b7591c7ddb81bd9d0b))
+* enhance fingerprint application and management with new features and tests ([6d450e6](https://github.com/IMXEren/pydoll/commit/6d450e6083dcedc88a4c3b360a33ef2e1c30b5a2))
+* **examples:** add a Linux desktop profile shaped for a container ([e832bc4](https://github.com/IMXEren/pydoll/commit/e832bc45d2ec7f46087d7f4052107f03296d8a63))
+* **examples:** hide the globals that name the browser brand ([2ec2c6c](https://github.com/IMXEren/pydoll/commit/2ec2c6c0b8b215a7293e041ffcc2e671721a7b65))
+* expect_cloudflare_turnstile is the only Turnstile handler ([bf7fa71](https://github.com/IMXEren/pydoll/commit/bf7fa7103f977ab3e3551bffc39637d09a90fb26))
+* **fingerprint:** coherent headless screen via Emulation.updateScreen ([4400357](https://github.com/IMXEren/pydoll/commit/4400357a90c3467f96d0c0f9697f4caaccf61775))
+* **fingerprint:** construct declared WebGL extensions and delegate without call/apply lookups ([9b9fa69](https://github.com/IMXEren/pydoll/commit/9b9fa699d79df78dcd79cc9dbf6b454cf9f0a069))
+* **fingerprint:** cover the WebGL limits the hCaptcha payload actually asks for ([fa68691](https://github.com/IMXEren/pydoll/commit/fa686919e53ad2534c765887f7d0d54d32254626))
+* **fingerprint:** emulate CSS media features via Emulation.setEmulatedMedia ([3aaeea0](https://github.com/IMXEren/pydoll/commit/3aaeea0a25344565f4b7245b8c1039a6d28105d3))
+* **fingerprint:** hide the Web APIs the claimed OS does not implement ([7a37a53](https://github.com/IMXEren/pydoll/commit/7a37a532440906b044e04393396315fe8dd849d4))
+* **fingerprint:** let the profile answer navigator.plugins and mimeTypes ([42cd23c](https://github.com/IMXEren/pydoll/commit/42cd23c892e34a8c54c699983d2f201e847ffe15))
+* **fingerprint:** let the profile answer the media codec probes ([3195492](https://github.com/IMXEren/pydoll/commit/3195492b39b1f97f6e35e55647f82dbf237dc143))
+* **fingerprint:** native-first overrides and Chromium client hints algorithm ([d519713](https://github.com/IMXEren/pydoll/commit/d5197137b08908cb8d0ff564a254d0a0d6c35dc5))
+* **fingerprint:** propagate identity into cross-origin OOPIF iframes ([d7c91d9](https://github.com/IMXEren/pydoll/commit/d7c91d92508183eb54e5b2c4db4da76e61db34c1))
+* **fingerprint:** rewrite browser-process script fetches with the profile identity ([cab3065](https://github.com/IMXEren/pydoll/commit/cab3065766cac898d4e6b7e6da77b468104316d7))
+* **fingerprint:** WebGPU adapter profile ([6f6bd56](https://github.com/IMXEren/pydoll/commit/6f6bd567e83b9f38d353063b9fc0f638916e4612))
+* **fingerprint:** WebGPU profiles for the Windows and Android examples ([c46dc1f](https://github.com/IMXEren/pydoll/commit/c46dc1f153edde3b0f7ece975b7c342eb2faaa48))
+* humanized mouse inside iframes and shadow roots, moves sent without waiting ([8b0da38](https://github.com/IMXEren/pydoll/commit/8b0da38f2327eface6ba4b9076eb9b7f603ff3dc))
+* implement fingerprint injection subsystem ([8caec00](https://github.com/IMXEren/pydoll/commit/8caec003423671432537e2e0a1711d2e4c6afb40))
+* integrate upstream v3 with fork connection support ([e32b509](https://github.com/IMXEren/pydoll/commit/e32b509228bf99b8f2bdc238fa12a4dc8020b680))
+* **playwright:** Playwright-compatible API layer (async and sync) over pydoll ([1d9b043](https://github.com/IMXEren/pydoll/commit/1d9b04341be94bc7ea4cf5e700968b9ad33cd353))
+* **playwright:** run the layer on Pydoll 3 and test the documented flows ([c488da5](https://github.com/IMXEren/pydoll/commit/c488da55949a8899838b4fa542de79948e199515))
+* pydoll 3, one API in sync and async form ([d31da53](https://github.com/IMXEren/pydoll/commit/d31da53e00097636bf6ec245c4437ee908c85933))
+* say why the browser failed to start ([378ee39](https://github.com/IMXEren/pydoll/commit/378ee39b7e5151aa429a22b4ca3b6be95bf9f4df))
+* **sync:** emit overloads, setters and every annotation dependency in the generated facades ([be908e5](https://github.com/IMXEren/pydoll/commit/be908e5f68c3486f1900848b28baaa3cac46d7f9))
+* **sync:** generated synchronous API for pydoll ([2d86bc1](https://github.com/IMXEren/pydoll/commit/2d86bc1e92f9c68d28c6246706a55cf40cfb9e28))
+* waits for element states, URLs, scripts, network idle, and expect_* capture blocks ([c27605d](https://github.com/IMXEren/pydoll/commit/c27605dd7d4a5bbfc7137a3f67ec7a5ee0b0ab60))
+
+### Bug Fixes
+
+* **browser:** close ConnectionHandler in OOPIF and iframe resolution ([14ff48a](https://github.com/IMXEren/pydoll/commit/14ff48aae803748bff14a54111bc03e8d61eb619))
+* **browser:** guard empty tabs and None user_data_dir in Browser ([583a39f](https://github.com/IMXEren/pydoll/commit/583a39fc69d30504858695e1230aa49607f9dcff))
+* **bundle:** rewrite root-relative URLs in HTML bundles ([7fabfbb](https://github.com/IMXEren/pydoll/commit/7fabfbba2eceb825f38b0c800e805a4e402aecca))
+* change const to let for content and text variables ([d0b6930](https://github.com/IMXEren/pydoll/commit/d0b693047db31b452d09f59ae69edc1cca50b599))
+* **ci:** restore mypy checks after uv migration ([0b5352f](https://github.com/IMXEren/pydoll/commit/0b5352ffc44ef7851a3bc98728b3fd45d67c6e0b))
+* **cloudflare:** improve checkbox click logic for faster failure handling ([a6c89ec](https://github.com/IMXEren/pydoll/commit/a6c89ec6e7d5f6b4559dd4eb8a71cb0e4d61fc43))
+* **cloudflare:** update checkbox selector and improve bypass logic ([305180a](https://github.com/IMXEren/pydoll/commit/305180a1b471d28f2129d8dbe049b6bd25c7828d))
+* **decorators:** correct docstring example to use [@retry](https://github.com/retry) ([406c67c](https://github.com/IMXEren/pydoll/commit/406c67cc1e334d5ddc8323cb1327667ab6feceec))
+* **examples:** complete the Android uniform families and enforce it ([7414753](https://github.com/IMXEren/pydoll/commit/7414753f7a9726d5169f880635edf80f9328c1b6))
+* **examples:** declare WebGL on the Linux container profile ([aca787b](https://github.com/IMXEren/pydoll/commit/aca787bebf55be3d8c0045bbd04ba4628a7e1004))
+* **examples:** drop the invalid webrtc_ip_policy from the container profile ([cf1febe](https://github.com/IMXEren/pydoll/commit/cf1febebedb746a3d19539d4cb4e5572a0448bfb))
+* **examples:** use new_tab instead of removed get_page method ([b3a8e3e](https://github.com/IMXEren/pydoll/commit/b3a8e3e393fba67f2482b8bc67417384a23126de))
+* **fingerprint:** anchor the example codec maps to measured answers ([d1ffb4e](https://github.com/IMXEren/pydoll/commit/d1ffb4e84e7edc94d133e5ebaab2bac50084fdf6))
+* **fingerprint:** apply the WebGPU profile inside workers ([943014c](https://github.com/IMXEren/pydoll/commit/943014c92bc171446ce292f813eaf43dc1a82a62))
+* **fingerprint:** check the font names a local() source asks for ([0b2f9e5](https://github.com/IMXEren/pydoll/commit/0b2f9e5bba2cc4b0ae9f331b2aac2d1be8bd0b1b))
+* **fingerprint:** correct the transform-feedback enum mapping ([46eaa91](https://github.com/IMXEren/pydoll/commit/46eaa919dc7b2e363c9f09fcffd2b38313a3ccea))
+* **fingerprint:** faithful constructor wrappers and non-cloneable fakes ([b18a1a5](https://github.com/IMXEren/pydoll/commit/b18a1a5ed4db5c055770489c189f27bd2f3016b0))
+* **fingerprint:** give a patched method the native arity, not the callback's ([af53e1f](https://github.com/IMXEren/pydoll/commit/af53e1f817c66d1065a7a869c84997c7a5f1400c))
+* **fingerprint:** keep Chrome's frozen Android platform and soften platformVersion claims ([caf3684](https://github.com/IMXEren/pydoll/commit/caf3684c63c27fe0e36d245e957c968bcb5c4c28))
+* **fingerprint:** keep the emulation mode when a clamped window is reconciled ([17967b8](https://github.com/IMXEren/pydoll/commit/17967b843a9d84989afe6022380fcbc0aa4ae1b5))
+* **fingerprint:** leave document.fonts.check() native ([020f891](https://github.com/IMXEren/pydoll/commit/020f891fdedee1d28e84c43b40a2e88a73e868c7))
+* **fingerprint:** let touch emulation own navigator.maxTouchPoints ([03891d1](https://github.com/IMXEren/pydoll/commit/03891d11b7bcb5af6c4c54f98f8913498b74d7a6))
+* **fingerprint:** make the values the profile reports physically possible ([840a07b](https://github.com/IMXEren/pydoll/commit/840a07b682c0e925957b60c81eacba456bf1d121))
+* **fingerprint:** resolve script-fetch contexts by target and harden the JS residue ([c078eb3](https://github.com/IMXEren/pydoll/commit/c078eb398f1d6d8c1852dc10ec4018fb734c36cc))
+* **fingerprint:** stop the override from rewriting Chrome's header order ([225953d](https://github.com/IMXEren/pydoll/commit/225953d7de169a27a15d5c2569dce80c42742b88))
+* **fingerprint:** stop warning about the User-Agent the header path requires ([508362e](https://github.com/IMXEren/pydoll/commit/508362e1ee9b54cd4fe6f2cbba96c766eba9b163))
+* **fingerprint:** treat an empty client_hints as no Client Hints at all ([f57b364](https://github.com/IMXEren/pydoll/commit/f57b36437f042aa5f82cee7d5c480414ad6e594d))
+* harden the waiting API, the event worker and the WebGL override after review ([01e7c47](https://github.com/IMXEren/pydoll/commit/01e7c47825beeabbb241c6ff9bac4bddd906d095))
+* **input:** read like real mouse and keyboard input, keep touch emulation after navigation ([8b536b9](https://github.com/IMXEren/pydoll/commit/8b536b9e4313d22c9baf46c95d1570a603c10ab4)), closes [#459](https://github.com/IMXEren/pydoll/issues/459)
+* **js:** clear field on empty text in selection-read exception fallback ([2fbd5f7](https://github.com/IMXEren/pydoll/commit/2fbd5f7ef367e7b7ab2b4faf55bf5c237a7c1d00))
+* **js:** guard selection restore for unsupported input types in INSERT_TEXT ([f7b1905](https://github.com/IMXEren/pydoll/commit/f7b19051ec3fd1cae6d6ea62f5e17bf69d9122b5))
+* keep a margin when scrolling an element into view before clicking ([37eec7f](https://github.com/IMXEren/pydoll/commit/37eec7f4293aa0743fb33c1fa73a5182d1e75718))
+* keep browser shutdown best effort on locked profile files, and tidy after review ([1e6b284](https://github.com/IMXEren/pydoll/commit/1e6b2843276ede5fd73a5953e278f71483a82086))
+* keep worker and iframe session flows tolerant to rejected commands ([3ac6bdf](https://github.com/IMXEren/pydoll/commit/3ac6bdf5ae11d849fc1156cc79d0a51214f87bd1))
+* narrow bare except in insert_text cache re-read ([2c74849](https://github.com/IMXEren/pydoll/commit/2c7484936cb8ffe907b8bdd2fbc3dacd063e61c2))
+* nested iframes ([f3ec87c](https://github.com/IMXEren/pydoll/commit/f3ec87ce8b3aa205bac495e2834579fd5ac331f6))
+* **playwright:** enter an expect block only after its event source is enabled ([28fa87c](https://github.com/IMXEren/pydoll/commit/28fa87cd765e56bea36d204e3402eca731c33d48))
+* **playwright:** fractional clicks, geolocation accuracy, stale frames, wire headers and console handles ([deba286](https://github.com/IMXEren/pydoll/commit/deba2863112fc3bdb49c1867b535104e16ca86bb))
+* **playwright:** make the context locale reach navigator.language ([5e59143](https://github.com/IMXEren/pydoll/commit/5e59143c71a395243340b418e423c17a9dcfe271))
+* **playwright:** navigation, frames, lifecycle and error translation after review ([7588498](https://github.com/IMXEren/pydoll/commit/7588498d07f9f506e6bd72e158a6355928be8c2c))
+* **playwright:** report an unreachable http DevTools endpoint as Error on every platform ([e77b9c3](https://github.com/IMXEren/pydoll/commit/e77b9c3cffe252c8dcd9be5babf2b8a36884e14d))
+* **playwright:** resolve wait_until='commit' on frameNavigated so page.url is already set ([2a17f72](https://github.com/IMXEren/pydoll/commit/2a17f729bead226e6f867996719616b43792837d))
+* preserve ws address when resolving iframe connections ([21ba225](https://github.com/IMXEren/pydoll/commit/21ba2251ec11ccf6cf97475add5932309f181c25))
+* raise CommandFailed when the browser answers a command with an error ([b9b1094](https://github.com/IMXEren/pydoll/commit/b9b109448406969e9acb88c7dad9a78d01263007))
+* replace deprecated asyncio.get_event_loop with get_running_loop ([ff08059](https://github.com/IMXEren/pydoll/commit/ff0805956c6ff96d3f6180bf367558aafc573e7d))
+* resolve resource leaks and improve URL rewriting logic ([1c1983d](https://github.com/IMXEren/pydoll/commit/1c1983d277e839bcf774fd44b57c1609e41428a9))
+* retry hook arity from its signature, and sync runtime fork, cancel and cache fixes ([8fc2a5b](https://github.com/IMXEren/pydoll/commit/8fc2a5bcd2dfbb38ab5244b5d7a64c3616735237))
+* settle Runtime enabling before the next page command, and keep the instance for signature-less retry hooks ([80a496f](https://github.com/IMXEren/pydoll/commit/80a496f144057fd3f6a52c5d86b9f70d24d0ea02))
+* **sync:** stop leaking a thread per callback and tighten the generated facade ([12e1f31](https://github.com/IMXEren/pydoll/commit/12e1f31b0a1abb50afc3a01676c0c1bc18e0f08c))
+* **sync:** stop retaining facades, isolate callback threads, make the loop restartable ([59a44f4](https://github.com/IMXEren/pydoll/commit/59a44f4b3bfdd596594c53d2c104c317532d9edb))
+* **test:** test_clear_input_in_iframe ([5614381](https://github.com/IMXEren/pydoll/commit/56143812d557ae6f45dcbe83ad6f640ec7206bca))
+* **test:** test_find_element_in_parent_iframe ([c0ba97e](https://github.com/IMXEren/pydoll/commit/c0ba97eca8951253f923c8b0449196f9cc9425e3))
+* update request to return raw data instead of encoded text ([83eaf22](https://github.com/IMXEren/pydoll/commit/83eaf22da76237154da635cb4bd4b4e28e545494))
+* **utils:** use PATHEXT for executable validation on Windows ([c8a485e](https://github.com/IMXEren/pydoll/commit/c8a485e165192b75ee958e9c332c200d710f231b))
+
+### Performance
+
+* faster stop, quicker readiness poll, and log calls that cost nothing when off ([8e771ae](https://github.com/IMXEren/pydoll/commit/8e771ae56e8bf5aa3e177c027e85d1f93b19c4c7))
+* send a typed string's key events as one batch ([238683d](https://github.com/IMXEren/pydoll/commit/238683d53ef8fab7f1e3be5bb85549d3e0b953db))
+* stop sleeping where the browser has already answered ([eb69d80](https://github.com/IMXEren/pydoll/commit/eb69d8078658741a58970875518db00cc85eb54e))
+
+### Documentation
+
+* add Chinese documentation for migration, captcha bypass, evasion techniques, and human-like interactions ([17d7087](https://github.com/IMXEren/pydoll/commit/17d708700570145c8d2e467059fb07298f4ad54b))
+* add fingerprint injection documentation and update navigation structure in mkdocs.yml ([68da0f7](https://github.com/IMXEren/pydoll/commit/68da0f79a54f66e302b8ea8158d4f2bbd4d00b7d))
+* add height attributes to image tags in README ([675784a](https://github.com/IMXEren/pydoll/commit/675784acd1a4a380aa1e49a1ad36e536849c5a6f))
+* add ipcook as top sponsor ([98772e0](https://github.com/IMXEren/pydoll/commit/98772e09570b718f09b1e0c23820af820cb361b2))
+* add NodeMaven logo to README and update sponsorship section ([9f5dd20](https://github.com/IMXEren/pydoll/commit/9f5dd20eae27435abfba7c48cd6968e71ea37814))
+* add NodeMaven sponsorship details to SPONSORS.md ([846d748](https://github.com/IMXEren/pydoll/commit/846d748e5851b202db086a53734e1a01b62c14b6))
+* add swiftproxy logo image ([07386bc](https://github.com/IMXEren/pydoll/commit/07386bc23c824d10385e2be5be132ac05e5b5d96))
+* announce Pydoll 3 at the top of the README and point feedback to issue [#463](https://github.com/IMXEren/pydoll/issues/463) ([692101c](https://github.com/IMXEren/pydoll/commit/692101c7098a13b4b66d3715160bb6d9715cb5a5))
+* cut the template prose and the bold that read like a generator wrote them ([9489e06](https://github.com/IMXEren/pydoll/commit/9489e06b1b85cc4ddac93f7789fe7cee49c7732f))
+* **deep-dive:** GPU, containers and what a profile cannot reach ([5ed96a7](https://github.com/IMXEren/pydoll/commit/5ed96a7bfa5fc745d1ddcf20cacf215cbafc3d89))
+* enhance documentation clarity and structure across multiple files ([9b449dc](https://github.com/IMXEren/pydoll/commit/9b449dcd0d2c81278795e99f9a40a052fa9d26f5))
+* enhance documentation with visual aids and interactive elements ([4dec8c5](https://github.com/IMXEren/pydoll/commit/4dec8c54e328079a989443394d4687b36b917f04))
+* enhance sponsor section with improved layout and new sponsor details ([a8a075f](https://github.com/IMXEren/pydoll/commit/a8a075fda09f8b2cbde4b0be26029b925e30ddf1))
+* escape iframe tag in API reference ([86782cd](https://github.com/IMXEren/pydoll/commit/86782cdb0777f71afe8406b0f9e5412fcc6a057d))
+* **examples:** drop the explanatory comments from the profile module ([e2a45f7](https://github.com/IMXEren/pydoll/commit/e2a45f738c701c63f24ccdb3bea20fbaa7ee00c8))
+* explain why the User-Agent major must equal the binary, and say what the override reaches ([dd5993d](https://github.com/IMXEren/pydoll/commit/dd5993d02d7a6a10c5b936cdc834ba36b73a86b5))
+* **fingerprint-injection:** rewrite as a lean use guide (en/pt/zh) ([413fefa](https://github.com/IMXEren/pydoll/commit/413fefa6a69e9d956ce18e64de952f4d5d8574a3))
+* **fingerprint-injection:** update descriptions for clarity in English, Portuguese, and Chinese versions ([bbc404a](https://github.com/IMXEren/pydoll/commit/bbc404a95b93065092e171573849b89d4b52bb51))
+* **fingerprint:** add advanced fingerprinting deep dive ([337e95f](https://github.com/IMXEren/pydoll/commit/337e95f16474ef4c44914e04ff20894744800e8f))
+* **fingerprint:** apply review corrections to the advanced fingerprinting deep dive ([4af0a18](https://github.com/IMXEren/pydoll/commit/4af0a18232d3a74f58922709780df89b34a85bef))
+* **fingerprint:** cross-origin iframe coverage, Cloudflare deep dive, en/pt/zh ([5179380](https://github.com/IMXEren/pydoll/commit/5179380f7cde2ad2d8ed2a45f280c8239d0128a6))
+* **fingerprint:** cut the narration from the profile comments ([6c7db51](https://github.com/IMXEren/pydoll/commit/6c7db5146c193e7fefe67573861846ff1682449c))
+* fix the examples a review of the branch caught ([c218004](https://github.com/IMXEren/pydoll/commit/c21800454823c3f86d0523fbfd47de6a097991c8))
+* give Playwright users a way in without making Pydoll a wrapper ([f9266d9](https://github.com/IMXEren/pydoll/commit/f9266d94ac3a5f44612f02840754ff14bbc0c080))
+* make every Sync tab import pydoll.sync and fix the examples review caught ([c9590c4](https://github.com/IMXEren/pydoll/commit/c9590c4c222369a8003e5b6f506cb8606c46164e))
+* **pt, zh:** mirror the containers section ([2234f6d](https://github.com/IMXEren/pydoll/commit/2234f6dd0c12718c793b59ee09c1cc498c69b5b7))
+* **pt, zh:** mirror the fingerprint injection, spoofing limits and realms updates ([e1ccf27](https://github.com/IMXEren/pydoll/commit/e1ccf2724a4e39dcf5c044a355dcafe69ab41c24))
+* **readme:** regenerate the Cloudflare gif as a live Turnstile bypass on the NopeCHA demo, in English ([9383a24](https://github.com/IMXEren/pydoll/commit/9383a2419dc47ae399a7668b65e05527be62cbcb))
+* **readme:** rename Cloudflare gif to bust GitHub's image cache and point README at the new asset ([e010f53](https://github.com/IMXEren/pydoll/commit/e010f5312503aa2942928e792a784f3ea57c2af9))
+* **readme:** sponsors first, then one quick start in both forms and the Playwright door ([a4a57b4](https://github.com/IMXEren/pydoll/commit/a4a57b45b5c96179cb2b253829d25160ad67cb77))
+* rebuild embedded visuals as interactive animated simulations ([39a67b3](https://github.com/IMXEren/pydoll/commit/39a67b3fd722198a20cbb1f44db04b1ecd9a900f))
+* refactor fingerprint injection documentation for clarity and consistency ([79259ec](https://github.com/IMXEren/pydoll/commit/79259ec8f71d18d5c3576bf39bd09dfeff94982a))
+* refine language and improve clarity across multiple documentation files ([ceb7a57](https://github.com/IMXEren/pydoll/commit/ceb7a5752887a6bee9869c2d569bb791460944e3))
+* remove AreYouHeadless from detection table ([7ec9211](https://github.com/IMXEren/pydoll/commit/7ec921166d884f884f6ae0d52ae8fc8ea9fce268))
+* restructure sponsorship section with new layout and additional sponsor details ([7353711](https://github.com/IMXEren/pydoll/commit/73537114b23c0d32a61161fe1b69cb8a8bbf87b8))
+* show every example as Sync and Async tabs ([0e9f5a6](https://github.com/IMXEren/pydoll/commit/0e9f5a66b62b5eb36c9ec5c71e154ac53b2ed845))
+* **sponsors:** add SerpApi as the top sponsor ([f031d09](https://github.com/IMXEren/pydoll/commit/f031d0962557614210398fbf9368ae8d309318bc)), closes [#4668ea](https://github.com/IMXEren/pydoll/issues/4668ea)
+* start the browser before creating a context in the per-context fingerprint example ([838d770](https://github.com/IMXEren/pydoll/commit/838d770b09f716caf0ed04a35b0aa091b0c42258))
+* **stealth:** containers and servers without a GPU ([50f9edf](https://github.com/IMXEren/pydoll/commit/50f9edffcd966dbcd8dbf82756e810f68d1a5e2c))
+* **stealth:** document headless screen coherence + avail_top/avail_left ([1a282aa](https://github.com/IMXEren/pydoll/commit/1a282aa87d5e312da0a0106bc0bd1eb27ca53bbc))
+* **stealth:** keep the fingerprint pages at feature level ([4e78cbe](https://github.com/IMXEren/pydoll/commit/4e78cbe2882d17f2cba0520bc0c1f084bb48ccce))
+* update documentation theme, landing page and README ([21b3c5f](https://github.com/IMXEren/pydoll/commit/21b3c5f687e416da4c62e457237c76fb92bdd658))
+* update Google search demo image with a humanized interaction GIF ([656fa4b](https://github.com/IMXEren/pydoll/commit/656fa4b164df5a007b9321a076a7dc3f02da3bef))
+* update image paths for fingerprint injection documentation ([06c2dcb](https://github.com/IMXEren/pydoll/commit/06c2dcb3b5d27a57fe4a2fd9c8c1fd49bc683de3))
+* update maintainer note and sponsorship information in README ([62dcfd1](https://github.com/IMXEren/pydoll/commit/62dcfd1ee9c98f0cab9f73bd35f71314fd648dad))
+* update NodeMaven logo dimensions and styles for improved visibility ([d46d438](https://github.com/IMXEren/pydoll/commit/d46d438b769bf6ab341fefe46e33e1c25fdf5d1f))
+* update README ([bff441a](https://github.com/IMXEren/pydoll/commit/bff441a0c401a5220e77bcbafb944d84c0a342c8))
+* update README ([69cff6b](https://github.com/IMXEren/pydoll/commit/69cff6bc5281f1e302400c4c8261f23163027277))
+* update README by modifying badges and images ([1dc455d](https://github.com/IMXEren/pydoll/commit/1dc455dff858ee3d5441714ae085f178f1c32ae0))
+* update README to enhance clarity on Pydoll's features and usage ([8b70209](https://github.com/IMXEren/pydoll/commit/8b70209422e45bdc77d8bb8c99d0884b9f383aba))
+* update README with Nodemaven Proxy information ([f3f0a4b](https://github.com/IMXEren/pydoll/commit/f3f0a4b016fa04df9317d02764fc53a83d5ebbfa))
+* update sponsor details and add CoreClaw and Proxy-Seller information ([1615a2a](https://github.com/IMXEren/pydoll/commit/1615a2a2381011934105853806ee6ab80687f89d))
+* update sponsorship details and logos ([87cad21](https://github.com/IMXEren/pydoll/commit/87cad21afaebbdf695f827bb2d05e2fd5659ae7f))
+* update sponsorship section with new layout, additional sponsors, and improved styling ([226d982](https://github.com/IMXEren/pydoll/commit/226d9821c835a9acf3e2f412191b7a4f96e0b6fb))
+* update sponsorship section with NodeMaven and NiuProxy details, and replace banner images ([7d5e977](https://github.com/IMXEren/pydoll/commit/7d5e9774751d1b2df6f9e373445f2f8759a19834))
+* **visuals:** contexts-isolation runs once and holds (no auto-loop) ([0983b52](https://github.com/IMXEren/pydoll/commit/0983b52baf1476651c632dd3657b5c8fb431db06))
+* **visuals:** events-flow callback labels stack in-box (fix overflow) ([f4fa4d6](https://github.com/IMXEren/pydoll/commit/f4fa4d625d7c2d2bbd083ea7d9c1223ca8c8c025))
+
+### Refactoring
+
+* drop narration comments, section banners and the lint suppressions that hid real findings ([fc8b98e](https://github.com/IMXEren/pydoll/commit/fc8b98ec30a8fe7a5ebe3b6d93a16e1e17b7e8ff))
+* **iframe:** extract _try_resolve_oopif to narrow try block ([76ba85c](https://github.com/IMXEren/pydoll/commit/76ba85c5d3a1e83d30907bcf742ece18b13a2124))
+* make find_or_wait_element private ([1a2fc54](https://github.com/IMXEren/pydoll/commit/1a2fc548180b491095739ae47ce76a4b62a11b8f))
+* name the Cloudflare helpers after what they do ([601f886](https://github.com/IMXEren/pydoll/commit/601f886833fef14633bd0625840a6b32ba46edee))
+* **playwright:** fix the findings the removed suppressions exposed ([ea0bd6a](https://github.com/IMXEren/pydoll/commit/ea0bd6ac2e899598307a90441ad7ac0c9b763bee))
+* remove outdated comments on fingerprint context handling ([4c64069](https://github.com/IMXEren/pydoll/commit/4c64069c20859f8b69a4a938c24fb241ba3cc129))
+* spell unions with the | operator instead of typing.Union and Optional ([803dbc2](https://github.com/IMXEren/pydoll/commit/803dbc21d84943c74e34195fce0cecc7448b0f76))
+
+### CI/CD
+
+* fix GitHub Pages deployment ([96f629d](https://github.com/IMXEren/pydoll/commit/96f629d76279cbb69a54b6cef8ae4adb42168058))
+
+### Chores
+
+* drop narration comments from the input and worker fixes ([e42f7b6](https://github.com/IMXEren/pydoll/commit/e42f7b61fa4a044a69f29c959f64a1d495072fec))
+* leave the changelog and the version to commitizen ([40fa742](https://github.com/IMXEren/pydoll/commit/40fa742f969876fc417daaed71a5ef02ff49f557))
+* **sync:** regenerate the facades after merging main ([c6401b7](https://github.com/IMXEren/pydoll/commit/c6401b7a1c3c726e07c61d943483b2a8d54dbeff))
+* **sync:** type-check the generated facades in CI ([0deea7d](https://github.com/IMXEren/pydoll/commit/0deea7df033530db80a10231f2b6b413f4712c19))
+
+### Tests
+
+* **playwright:** set the 150 ms default timeout after the navigation it is not meant to bound ([13795e0](https://github.com/IMXEren/pydoll/commit/13795e05bec3ad7159566f334e646d346063a9d6))
+* regenerate the Playwright sync facade and give test launches a 60 s start timeout ([0b55306](https://github.com/IMXEren/pydoll/commit/0b55306e495ebf0f58335e3f6e88f6ff26219e6c))
+* remove xfail markers and update mocks for fixed bugs ([d98a846](https://github.com/IMXEren/pydoll/commit/d98a846ecfc87312b0ed4e48498af65f50619c48)), closes [#5](https://github.com/IMXEren/pydoll/issues/5) [#6](https://github.com/IMXEren/pydoll/issues/6)
+* share one browser per worker and run the suite in parallel ([51ce93f](https://github.com/IMXEren/pydoll/commit/51ce93f3368cdef5a436602ca7448941ec072638))
+
 ## [2.24.1](https://github.com/IMXEren/pydoll/compare/2.24.0...2.24.1) (2026-07-14)
 
 ### Bug Fixes

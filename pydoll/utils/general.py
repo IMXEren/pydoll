@@ -1,14 +1,24 @@
+from __future__ import annotations
+
+import asyncio
 import base64
+import json
 import logging
 import os
 import re
+import socket
 from html import unescape
 from html.parser import HTMLParser
+from pathlib import Path
+from typing import TYPE_CHECKING, overload
 
 import aiohttp
+from typing_extensions import deprecated
 
-from pydoll.connection.types import WSAddressResolverParams
 from pydoll.exceptions import InvalidBrowserPath, InvalidResponse, NetworkError
+
+if TYPE_CHECKING:
+    from pydoll.connection.types import WSAddressResolverParams
 
 logger = logging.getLogger(__name__)
 
@@ -115,45 +125,50 @@ def decode_base64_to_bytes(image: str) -> bytes:
     return base64.b64decode(image.encode('utf-8'))
 
 
-async def get_browser_ws_address(params: WSAddressResolverParams) -> str:
-    """
-    Fetches the WebSocket address for the browser instance.
+@overload
+async def get_browser_ws_address(params: WSAddressResolverParams) -> str: ...
 
-    Args:
-        params: :class WSAddressResolverParams
 
-    Returns:
-        str: The WebSocket address for the browser.
+@overload
+@deprecated('Pass WSAddressResolverParams instead of a port number')
+async def get_browser_ws_address(params: int) -> str: ...
 
-    Raises:
-        NetworkError: If the address cannot be fetched due to network errors
-            or missing data.
-        InvalidResponse: If the response is not valid JSON.
-    """
-    scheme = 'https' if params['use_secure'] else 'http'
+
+async def get_browser_ws_address(params: WSAddressResolverParams | int) -> str:
+    """Fetch the browser-level WebSocket address from the debugger's JSON endpoint."""
+    if isinstance(params, int):
+        host, port, use_secure = 'localhost', params, False
+    else:
+        host, port, use_secure = params['host'], params['port'], params['use_secure']
+    scheme = 'https' if use_secure else 'http'
+    if ':' in host and not host.startswith('['):
+        host = f'[{host}]'
     try:
         async with aiohttp.ClientSession() as session:
             async with session.get(
-                f'{scheme}://{params["host"]}:{params["port"]}/json/version'
+                f'{scheme}://{host}:{port}/json/version',
+                timeout=aiohttp.ClientTimeout(total=10),
             ) as response:
                 response.raise_for_status()
                 data = await response.json()
                 return data['webSocketDebuggerUrl']
-
-    except aiohttp.ClientError as e:
-        raise NetworkError(f'Failed to get browser ws address: {e}')
-
-    except KeyError as e:
-        raise InvalidResponse(f'Failed to get browser ws address: {e}')
+    except (aiohttp.ClientError, asyncio.TimeoutError) as exc:
+        raise NetworkError(f'Failed to get browser ws address: {exc}') from exc
+    except (KeyError, json.JSONDecodeError) as exc:
+        raise InvalidResponse(f'Failed to get browser ws address: {exc}') from exc
 
 
 def _is_executable(path: str) -> bool:
-    """Check if a path is an executable file, platform-aware."""
+    """Check if a path points to an executable file.
+
+    On Windows, uses PATHEXT to validate the file extension.
+    On Unix, uses the execute permission bit.
+    """
+    if not os.path.isfile(path):
+        return False
     if os.name == 'nt':
-        # On Windows, check if the file extension is in PATHEXT
-        ext = os.path.splitext(path)[1].lower()
-        return ext in os.environ.get('PATHEXT', '.exe;.cmd;.bat').lower().split(';')
-    # On Unix, check the executable bit
+        pathext = {ext.lower() for ext in os.environ.get('PATHEXT', '').split(os.pathsep)}
+        return Path(path).suffix.lower() in pathext
     return os.access(path, os.X_OK)
 
 
@@ -176,7 +191,7 @@ def validate_browser_paths(paths: list[str]) -> str:
         InvalidBrowserPath: If the browser executable is not found at the path.
     """
     for path in paths:
-        if os.path.isfile(path) and _is_executable(path):
+        if _is_executable(path):
             return path
     raise InvalidBrowserPath(f'No valid browser path found in: {paths}')
 
@@ -300,3 +315,38 @@ def normalize_synthetic_xpath(selector: str) -> str:
     if end_idx == -1 or end_idx <= start_idx:
         return selector
     return s[start_idx:end_idx]
+
+
+def find_free_port() -> int:
+    """Return a TCP port the operating system reports free on the loopback interface.
+
+    Chrome's remote debugging port must be unique per browser on the machine.
+    Picking one at random from a small range collides as soon as a few browsers
+    run at once (parallel test workers, several scrapers on one host), and a
+    collision is silent: the new browser cannot bind, so pydoll ends up talking
+    to whichever browser already owns the port. Asking the OS for an ephemeral
+    port narrows the window to the moment between this call and Chrome binding.
+    """
+    with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as probe:
+        probe.bind(('127.0.0.1', 0))
+        return probe.getsockname()[1]
+
+
+class PollInterval:
+    """Pause between polling attempts that starts short and backs off.
+
+    A fixed half-second pause makes every wait cost half a second even when the
+    thing appears after ten milliseconds. Starting at ``start`` seconds and
+    multiplying by ``factor`` up to ``cap`` keeps quick outcomes quick while a
+    long wait still settles into a cheap polling rate.
+    """
+
+    def __init__(self, start: float = 0.02, cap: float = 0.25, factor: float = 1.5) -> None:
+        self._current = start
+        self._cap = cap
+        self._factor = factor
+
+    async def wait(self) -> None:
+        """Sleep for the current interval, then lengthen it for the next call."""
+        await asyncio.sleep(self._current)
+        self._current = min(self._current * self._factor, self._cap)
