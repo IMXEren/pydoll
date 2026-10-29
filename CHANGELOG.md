@@ -1,3 +1,13 @@
+## [3.0.0-dev.3](https://github.com/IMXEren/pydoll/compare/3.0.0-dev.2...3.0.0-dev.3) (2026-10-29)
+
+### Bug Fixes
+
+* **tab:** catch asyncio timeout on Python 3.10 ([266b700](https://github.com/IMXEren/pydoll/commit/266b7004b7bdc4abbaac9f6f792639b7fe937f6e))
+
+### Tests
+
+* **scroll:** make overshoot correction check deterministic ([fbd373c](https://github.com/IMXEren/pydoll/commit/fbd373c4cbcaa6521b67b4411ab904f1d452cf2b))
+
 ## [3.0.0-dev.2](https://github.com/IMXEren/pydoll/compare/3.0.0-dev.1...3.0.0-dev.2) (2026-10-29)
 
 ### Features
