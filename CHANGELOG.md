@@ -1,3 +1,13 @@
+## [3.0.1-dev.1](https://github.com/IMXEren/pydoll/compare/3.0.0...3.0.1-dev.1) (2026-10-29)
+
+### Bug Fixes
+
+* **playwright:** retain and await request extra headers ([9066101](https://github.com/IMXEren/pydoll/commit/9066101886ec5484b0ffb31da3fbc1d999179872))
+
+### Tests
+
+* **browser:** diagnose slow stderr drain on Windows ([d013aa8](https://github.com/IMXEren/pydoll/commit/d013aa87c588c3106412088d17e2e815b5a3be6f))
+
 ## [3.0.0](https://github.com/IMXEren/pydoll/compare/2.24.1...3.0.0) (2026-10-29)
 
 ### ⚠ BREAKING CHANGES

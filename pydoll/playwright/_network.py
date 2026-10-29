@@ -65,6 +65,7 @@ class Request:
             key.lower(): value for key, value in raw.get('headers', {}).items()
         }
         self._extra_headers: dict[str, str] = {}
+        self._extra_headers_future: asyncio.Future[None] = page._loop.create_future()
         self._post_data: str | None = raw.get('postData')
         self._resource_type: str = (params.get('type') or 'other').lower()
         self._frame_id: str | None = params.get('frameId')
@@ -126,13 +127,20 @@ class Request:
         return {**self._headers, **self._extra_headers}
 
     async def all_headers(self) -> dict[str, str]:
+        if not self._extra_headers_future.done() and not self._finished_future.done():
+            await asyncio.wait(
+                (self._extra_headers_future, self._finished_future),
+                return_when=asyncio.FIRST_COMPLETED,
+            )
         return self._full_headers()
 
     async def headers_array(self) -> list[dict[str, str]]:
-        return [{'name': name, 'value': value} for name, value in self._full_headers().items()]
+        return [
+            {'name': name, 'value': value} for name, value in (await self.all_headers()).items()
+        ]
 
     async def header_value(self, name: str) -> str | None:
-        return self._full_headers().get(name.lower())
+        return (await self.all_headers()).get(name.lower())
 
     @property
     def frame(self) -> Frame:
@@ -309,6 +317,7 @@ class NetworkManager:
     def __init__(self, page: Page) -> None:
         self._page = page
         self._requests: dict[str, Request] = {}
+        self._request_extra_headers: dict[str, dict[str, str]] = {}
         self._response_extra_headers: dict[str, dict[str, str]] = {}
         self._in_flight: set[str] = set()
         self._changed = asyncio.Event()
@@ -332,16 +341,25 @@ class NetworkManager:
             )
             self._finish(redirected_from, None)
         request = Request(self._page, request_id, params, redirected_from)
+        extra_headers = self._request_extra_headers.pop(request_id, None)
+        if extra_headers is not None:
+            request._extra_headers = extra_headers
+            request._extra_headers_future.set_result(None)
         self._requests[request_id] = request
         self._in_flight.add(request_id)
         self._notify()
         self._page.emit('request', request)
 
     def on_request_will_be_sent_extra_info(self, params: dict[str, Any]) -> None:
-        request = self._requests.get(params['requestId'])
+        request_id = params['requestId']
+        headers = _lower_keys(params.get('headers', {}))
+        request = self._requests.get(request_id)
         if request is None:
+            self._request_extra_headers[request_id] = headers
             return
-        request._extra_headers = _lower_keys(params.get('headers', {}))
+        request._extra_headers = headers
+        if not request._extra_headers_future.done():
+            request._extra_headers_future.set_result(None)
 
     def on_response_received(self, params: dict[str, Any]) -> None:
         request = self._requests.get(params['requestId'])
