@@ -14,15 +14,20 @@ from pydoll.browser.managers import BrowserProcessManager
 from pydoll.browser.managers.browser_options_manager import ChromiumOptionsManager
 from pydoll.browser.options import ChromiumOptions
 from pydoll.browser.tab import Tab
-from pydoll.exceptions import InvalidOptionsObject
+from pydoll.exceptions import FailedToStartBrowser, InvalidOptionsObject
+from tests.unit.conftest import FakeConnection
 
 
 class _FakeProcess:
     """Stand-in for the spawned browser subprocess (nothing really runs)."""
 
-    def __init__(self):
+    def __init__(self, exit_code: int | None = None):
         self.pid = 4242
         self.terminated = False
+        self.exit_code = exit_code
+
+    def poll(self):
+        return self.exit_code
 
     def terminate(self):
         self.terminated = True
@@ -91,16 +96,77 @@ async def test_browser_start_and_stop_orchestrate_process_and_connection(fake_co
     assert fake_process.terminated is True
 
 
-def test_browser_default_use_secure_is_false():
+@pytest.mark.asyncio
+async def test_a_browser_that_exits_before_answering_fails_at_once_with_its_exit_code():
+    fake_process = _FakeProcess(exit_code=3)
     browser = Chrome()
-    assert browser._use_secure is False
+    browser.options.binary_location = '/usr/bin/true'
+    browser.options.start_timeout = 30
+    browser._connection_handler = _DeadConnection()
+    browser._browser_process_manager = BrowserProcessManager(
+        process_creator=lambda command: fake_process
+    )
+
+    with pytest.raises(FailedToStartBrowser, match='exited with code 3 before answering on port'):
+        await browser.start()
+    assert fake_process.terminated is False
 
 
-def test_browser_use_secure_true_stored():
-    browser = Chrome(use_secure=True)
-    assert browser._use_secure is True
+@pytest.mark.asyncio
+async def test_a_browser_that_never_answers_is_stopped_and_reported_with_the_timeout():
+    fake_process = _FakeProcess()
+    browser = Chrome()
+    browser.options.binary_location = '/usr/bin/true'
+    browser.options.start_timeout = 0.2
+    browser._connection_handler = _DeadConnection()
+    browser._browser_process_manager = BrowserProcessManager(
+        process_creator=lambda command: fake_process
+    )
+
+    with pytest.raises(FailedToStartBrowser, match='did not answer on port .* within 0.2s'):
+        await browser.start()
+    assert fake_process.terminated is True
 
 
-def test_browser_use_secure_passed_to_connection_handler():
-    browser = Chrome(use_secure=True)
+class _DeadConnection(FakeConnection):
+    """A connection whose endpoint never answers, counting the attempts."""
+
+    def __init__(self):
+        super().__init__()
+        self.pings = 0
+
+    async def ping(self) -> bool:
+        self.pings += 1
+        return False
+
+
+@pytest.mark.asyncio
+async def test_readiness_poll_backs_off_so_a_dead_browser_costs_few_attempts():
+    """``stop()`` and ``__aexit__`` poll the endpoint through this check; a fixed
+    20 ms pause made a browser that was already gone cost hundreds of connects."""
+    connection = _DeadConnection()
+    browser = Chrome()
+    browser._connection_handler = connection
+    assert await browser._is_browser_running(timeout=0.5) is False
+    assert 2 <= connection.pings <= 10
+
+
+def test_remote_endpoint_reaches_browser_and_tabs():
+    browser = Chrome(connection_port=9443, connection_host='remote.example', use_secure=True)
+    assert browser._connection_handler._connection_host == 'remote.example'
     assert browser._connection_handler._use_secure is True
+
+    tab = Tab(browser, **browser._get_tab_kwargs('page-1'))
+    assert tab._connection_handler._connection_host == 'remote.example'
+    assert tab._connection_handler._use_secure is True
+    assert tab._connection_handler._connection_port == 9443
+
+
+def test_original_positional_constructor_arguments_still_work():
+    from pydoll.connection import ConnectionHandler
+
+    browser = Chrome(None, 9222)
+    handler = ConnectionHandler(9222, 'page-1')
+    assert browser._connection_port == 9222
+    assert handler._connection_port == 9222
+    assert handler._page_id == 'page-1'

@@ -168,3 +168,9 @@ dev_test_file.py
 
 # Node (semantic-release)
 node_modules/
+
+# Internal tooling and private studies
+tools/
+private-studies/
+FINGERPRINT_AUDIT_*
+FINGERPRINT_TRACES_*

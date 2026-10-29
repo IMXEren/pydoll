@@ -23,16 +23,15 @@ jobs:
       - name: Setup Python
         uses: actions/setup-python@v5
         with:
-          python-version: '3.x'
+          python-version: '3.12'
 
-      - name: Install Dependencies
-        run: |
-          python -m pip install --upgrade pip
-          pip install mkdocs mkdocs-material pymdown-extensions mkdocstrings[python] mkdocs-static-i18n
+      - uses: astral-sh/setup-uv@v6
+      - name: Install dependencies
+        run: uv sync --locked --python 3.12
 
       # Build MkDocs into a temporary folder
       - name: Build MkDocs into temp folder
-        run: mkdocs build --site-dir temp_docs
+        run: uv run --locked mkdocs build --site-dir temp_docs
 
       # Combine MkDocs output (site/docs/) with root site public/ files
       - name: Prepare final site

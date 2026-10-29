@@ -57,6 +57,6 @@
 - [ ] I have performed a thorough self-review of the refactored code
 - [ ] I have commented my code, particularly in complex areas
 - [ ] I have updated documentation if needed
-- [ ] I have run `poetry run task lint` and fixed any issues
-- [ ] I have run `poetry run task test` and all tests pass
+- [ ] I have run `uv run --locked task lint` and fixed any issues
+- [ ] I have run `uv run --locked task test` and all tests pass
 - [ ] My commits follow the [conventional commits](https://www.conventionalcommits.org/) style 

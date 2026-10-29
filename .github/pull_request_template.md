@@ -60,6 +60,6 @@ Or use this general template for other types of changes.
 - [ ] My changes generate no new warnings
 - [ ] I have added tests that prove my fix is effective or that my feature works
 - [ ] New and existing unit tests pass locally with my changes
-- [ ] I have run `poetry run task lint` and fixed any issues
-- [ ] I have run `poetry run task test` and all tests pass
+- [ ] I have run `uv run --locked task lint` and fixed any issues
+- [ ] I have run `uv run --locked task test` and all tests pass
 - [ ] My commits follow the [conventional commits](https://www.conventionalcommits.org/) style 

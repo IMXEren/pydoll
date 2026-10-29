@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import logging
 import platform
-from typing import TYPE_CHECKING, Optional
+from typing import TYPE_CHECKING
 
 from pydoll.browser.chromium.base import Browser
 from pydoll.browser.managers import ChromiumOptionsManager
@@ -20,9 +20,9 @@ class Chrome(Browser):
 
     def __init__(
         self,
-        options: Optional[ChromiumOptions] = None,
-        connection_host: Optional[str] = 'localhost',
-        connection_port: Optional[int] = None,
+        options: ChromiumOptions | None = None,
+        connection_port: int | None = None,
+        connection_host: str | None = None,
         use_secure: bool = False,
     ):
         """
@@ -30,16 +30,13 @@ class Chrome(Browser):
 
         Args:
             options: Chrome configuration options (default if None).
-            connection_host: CDP WebSocket host.
-            connection_port: CDP WebSocket port (random if None).
-            use_secure: Use secure WebSocket (wss://).
+            connection_port: CDP WebSocket port (a free port if None).
+            connection_host: Debugger endpoint host (localhost by default).
+            use_secure: Resolve over HTTPS and connect over WSS.
         """
         options_manager = ChromiumOptionsManager(options)
         super().__init__(
-            options_manager,
-            connection_host=connection_host,
-            connection_port=connection_port,
-            use_secure=use_secure,
+            options_manager, connection_port, connection_host=connection_host, use_secure=use_secure
         )
 
     @staticmethod

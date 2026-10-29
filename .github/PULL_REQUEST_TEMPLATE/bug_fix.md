@@ -50,6 +50,6 @@
 - [ ] My code follows the style guidelines of this project
 - [ ] I have performed a self-review of my code
 - [ ] I have added test cases that prove my fix is effective
-- [ ] I have run `poetry run task lint` and fixed any issues
-- [ ] I have run `poetry run task test` and all tests pass
+- [ ] I have run `uv run --locked task lint` and fixed any issues
+- [ ] I have run `uv run --locked task test` and all tests pass
 - [ ] My commits follow the [conventional commits](https://www.conventionalcommits.org/) style with message explaining the fix 
