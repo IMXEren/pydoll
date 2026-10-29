@@ -1877,7 +1877,7 @@ class Tab(FindElementsMixin):
             yield
             try:
                 await asyncio.wait_for(captcha_processed.wait(), timeout=time_to_wait_captcha)
-            except TimeoutError:
+            except asyncio.TimeoutError:
                 pass
         finally:
             await self._connection_handler.remove_callback(callback_id)
