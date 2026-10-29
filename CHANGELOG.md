@@ -1,3 +1,9 @@
+## [3.0.0-dev.2](https://github.com/IMXEren/pydoll/compare/3.0.0-dev.1...3.0.0-dev.2) (2026-10-29)
+
+### Features
+
+* **tab:** support bounded on-demand Turnstile handling ([49910b6](https://github.com/IMXEren/pydoll/commit/49910b691b42046370f862e833a9277d493788a4))
+
 ## [3.0.0-dev.1](https://github.com/IMXEren/pydoll/compare/2.24.1...3.0.0-dev.1) (2026-10-29)
 
 ### ⚠ BREAKING CHANGES
