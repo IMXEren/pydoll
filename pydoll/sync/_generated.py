@@ -207,7 +207,7 @@ class Chrome(SyncBase):
     def options(self, value: Options) -> None:
         self._impl.options = mapping.to_impl(value)
 
-    def connect(self, ws_address: str) -> Tab:
+    def connect(self, ws_address: str, *, headers: dict[str, str] | None=None) -> Tab:
         """
         Connect to browser using WebSocket address. When we set
         the _ws_address attribute, the connection handler will use
@@ -215,6 +215,7 @@ class Chrome(SyncBase):
 
         Args:
             ws_address: WebSocket address of the browser.
+            headers: Optional WebSocket handshake headers for browser and page sockets.
 
         Returns:
             The first tab in the list of opened tabs.
@@ -223,7 +224,7 @@ class Chrome(SyncBase):
             You are supposed to use this method only if you want to connect to a browser
             that is already running.
         """
-        return mapping.from_impl(self._run(self._impl.connect(ws_address=mapping.to_impl(ws_address))))
+        return mapping.from_impl(self._run(self._impl.connect(ws_address=mapping.to_impl(ws_address), headers=mapping.to_impl(headers))))
 
     def start(self) -> Tab:
         """
@@ -534,7 +535,7 @@ class Edge(SyncBase):
     def options(self, value: Options) -> None:
         self._impl.options = mapping.to_impl(value)
 
-    def connect(self, ws_address: str) -> Tab:
+    def connect(self, ws_address: str, *, headers: dict[str, str] | None=None) -> Tab:
         """
         Connect to browser using WebSocket address. When we set
         the _ws_address attribute, the connection handler will use
@@ -542,6 +543,7 @@ class Edge(SyncBase):
 
         Args:
             ws_address: WebSocket address of the browser.
+            headers: Optional WebSocket handshake headers for browser and page sockets.
 
         Returns:
             The first tab in the list of opened tabs.
@@ -550,7 +552,7 @@ class Edge(SyncBase):
             You are supposed to use this method only if you want to connect to a browser
             that is already running.
         """
-        return mapping.from_impl(self._run(self._impl.connect(ws_address=mapping.to_impl(ws_address))))
+        return mapping.from_impl(self._run(self._impl.connect(ws_address=mapping.to_impl(ws_address), headers=mapping.to_impl(headers))))
 
     def start(self) -> Tab:
         """

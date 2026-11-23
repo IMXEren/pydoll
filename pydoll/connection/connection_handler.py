@@ -54,6 +54,7 @@ class ConnectionHandler:
         ws_address: str | None = None,
         connection_host: str | None = None,
         use_secure: bool = False,
+        headers: dict[str, str] | None = None,
     ):
         """
         Initialize connection handler.
@@ -74,6 +75,7 @@ class ConnectionHandler:
         self._ws_address_resolver = ws_address_resolver
         self._ws_connector = ws_connector
         self._ws_address = ws_address
+        self._headers = headers
         if ws_address:
             self._use_ws_address(ws_address)
         self._ws_connection: ClientConnection | None = None
@@ -356,10 +358,8 @@ class ConnectionHandler:
         ws_address = await self._resolve_ws_address()
         self._use_ws_address(ws_address)
         logger.info('Connecting to %s', ws_address)
-        self._ws_connection = await self._ws_connector(
-            ws_address,
-            max_size=None,
-        )
+        options = {'additional_headers': self._headers} if self._headers else {}
+        self._ws_connection = await self._ws_connector(ws_address, max_size=None, **options)
         self._events_handler.start()
         self._receive_task = asyncio.create_task(self._receive_events())
         logger.debug('WebSocket connection established')
