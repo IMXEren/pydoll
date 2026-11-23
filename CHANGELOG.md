@@ -1,3 +1,9 @@
+## [3.1.0-dev.1](https://github.com/IMXEren/pydoll/compare/3.0.1...3.1.0-dev.1) (2026-11-23)
+
+### Features
+
+* **browser:** forward connect headers to CDP page sockets ([929441b](https://github.com/IMXEren/pydoll/commit/929441bf9393a6ebb2f09361e930b117a7bdfdc1))
+
 ## [3.0.1](https://github.com/IMXEren/pydoll/compare/3.0.0...3.0.1) (2026-10-29)
 
 ### Bug Fixes
