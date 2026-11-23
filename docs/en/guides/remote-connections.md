@@ -67,6 +67,15 @@ Create a browser object, call `connect()` with the WebSocket address, and use th
 
 `connect()` returns the first open tab. Reach the others with `browser.get_opened_tabs()`, exactly as when you launch the browser yourself. See [Tabs](tabs.md).
 
+For a gateway that requires WebSocket handshake headers on browser and page connections, pass `headers` to `connect()`:
+
+```python
+browser = Chrome()
+tab = await browser.connect(ws_address, headers={'Authorization': 'Bearer <token>'})
+```
+
+The sync API supports the same option. The gateway must serve `/devtools/page/<targetId>` on the same host as the browser socket.
+
 !!! warning "Disconnect with `close()`, not `stop()`"
     You did not launch this browser, so do not terminate it. `await browser.close()` closes only Pydoll's WebSocket connection and leaves the browser running for whatever else uses it. `await browser.stop()` sends the browser a close command and kills the process, which is what you want for a browser you started, not one you attached to.
 

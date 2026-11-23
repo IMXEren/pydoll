@@ -123,6 +123,7 @@ class Browser(ABC):  # noqa: PLR0904
         self._browser_process_manager = browser_process_manager or BrowserProcessManager()
         self._temp_directory_manager = temp_directory_manager or TempDirectoryManager()
         self._ws_address: str | None = None
+        self._connection_headers: dict[str, str] | None = None
         self._connection_handler = connection_handler or ConnectionHandler(
             self._connection_port,
             connection_host=self._connection_host,
@@ -161,7 +162,7 @@ class Browser(ABC):  # noqa: PLR0904
 
         await self._connection_handler.close()
 
-    async def connect(self, ws_address: str) -> Tab:
+    async def connect(self, ws_address: str, *, headers: dict[str, str] | None = None) -> Tab:
         """
         Connect to browser using WebSocket address. When we set
         the _ws_address attribute, the connection handler will use
@@ -169,6 +170,7 @@ class Browser(ABC):  # noqa: PLR0904
 
         Args:
             ws_address: WebSocket address of the browser.
+            headers: Optional WebSocket handshake headers for browser and page sockets.
 
         Returns:
             The first tab in the list of opened tabs.
@@ -177,6 +179,8 @@ class Browser(ABC):  # noqa: PLR0904
             You are supposed to use this method only if you want to connect to a browser
             that is already running.
         """
+        self._connection_headers = headers.copy() if headers else None
+        self._connection_handler._headers = self._connection_headers
         logger.info('Connecting to browser via WebSocket: %s', ws_address)
         await self._setup_ws_address(ws_address)
         tabs = await self.get_opened_tabs()
@@ -1192,7 +1196,13 @@ class Browser(ABC):  # noqa: PLR0904
             'browser_context_id': browser_context_id,
         }
         if self._ws_address:
-            kwargs['ws_address'] = self._get_tab_ws_address(target_id)
+            address = self._get_tab_ws_address(target_id)
+            if self._connection_headers:
+                kwargs['connection_handler'] = ConnectionHandler(
+                    ws_address=address, headers=self._connection_headers
+                )
+            else:
+                kwargs['ws_address'] = address
         else:
             kwargs['connection_port'] = self._connection_port
             kwargs['connection_host'] = self._connection_host
